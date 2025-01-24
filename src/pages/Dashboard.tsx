@@ -22,6 +22,10 @@ const Dashboard = () => {
     areasForImprovement: 0
   });
   const [quote, setQuote] = useState("");
+  const [growthTips, setGrowthTips] = useState({
+    dailyPractice: "",
+    skillBuilding: ""
+  });
 
   useEffect(() => {
     // Get random quote
@@ -51,8 +55,39 @@ const Dashboard = () => {
         assessmentsCompleted: submissions.length,
         areasForImprovement: lowScores
       });
+
+      // Generate personalized growth tips based on scores
+      const lowestScoreCategory = processedData.reduce((min, current) => 
+        current.score < min.score ? current : min
+      );
+
+      const highestScoreCategory = processedData.reduce((max, current) => 
+        current.score > max.score ? current : max
+      );
+
+      // Set personalized growth tips
+      setGrowthTips({
+        dailyPractice: generateDailyPracticeTip(lowestScoreCategory.name, overallProgress),
+        skillBuilding: generateSkillBuildingTip(highestScoreCategory.name, lowestScoreCategory.name)
+      });
     }
   }, []);
+
+  // Helper function to generate daily practice tips
+  const generateDailyPracticeTip = (weakestArea: string, progress: number) => {
+    if (progress < 40) {
+      return `Focus on improving your ${weakestArea.toLowerCase()} through daily reflection exercises and mindfulness practices.`;
+    } else if (progress < 70) {
+      return `Continue strengthening your ${weakestArea.toLowerCase()} skills by setting specific goals and tracking your progress daily.`;
+    } else {
+      return `Maintain your progress by incorporating advanced ${weakestArea.toLowerCase()} exercises into your daily routine.`;
+    }
+  };
+
+  // Helper function to generate skill building tips
+  const generateSkillBuildingTip = (strongestArea: string, weakestArea: string) => {
+    return `Leverage your strength in ${strongestArea.toLowerCase()} to improve your ${weakestArea.toLowerCase()}. Try combining activities that involve both areas for better results.`;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 p-6">
@@ -125,11 +160,11 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 bg-gray-800 rounded-lg">
                 <h3 className="font-bold mb-2">Daily Practice</h3>
-                <p className="text-gray-400">Set aside 15 minutes each day for self-reflection and emotional awareness exercises.</p>
+                <p className="text-gray-400">{growthTips.dailyPractice}</p>
               </div>
               <div className="p-4 bg-gray-800 rounded-lg">
                 <h3 className="font-bold mb-2">Skill Building</h3>
-                <p className="text-gray-400">Focus on one area of improvement at a time. Practice active listening and empathy in daily interactions.</p>
+                <p className="text-gray-400">{growthTips.skillBuilding}</p>
               </div>
             </div>
           </CardContent>
