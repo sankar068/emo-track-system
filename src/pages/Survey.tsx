@@ -66,7 +66,9 @@ const Survey = () => {
   const navigate = useNavigate();
 
   const handleAnswer = (value: string) => {
+    // Allow selecting the same option multiple times
     setCurrentAnswer(value);
+    console.log(`Selected answer: ${value} for question ${currentQuestion + 1}`);
   };
 
   const handleNext = () => {
@@ -75,7 +77,11 @@ const Survey = () => {
       return;
     }
 
-    setAnswers({ ...answers, [questions[currentQuestion].id]: parseInt(currentAnswer) });
+    const questionId = questions[currentQuestion].id;
+    setAnswers(prev => ({
+      ...prev,
+      [questionId]: parseInt(currentAnswer)
+    }));
     
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useEffect, useState } from "react";
+import { User } from "lucide-react";
 
 // Motivational quotes array
 const motivationalQuotes = [
@@ -26,6 +27,11 @@ const Dashboard = () => {
     dailyPractice: "",
     skillBuilding: ""
   });
+  const [userProfile] = useState({
+    name: "John Doe",
+    email: "john@example.com",
+    joinedDate: new Date().toLocaleDateString()
+  });
 
   useEffect(() => {
     // Get random quote
@@ -44,10 +50,10 @@ const Dashboard = () => {
       }));
       setChartData(processedData);
 
-      // Calculate stats
-      const totalScore = Object.values(latestSubmission).reduce((sum: number, score: any) => sum + Number(score), 0);
+      // Calculate stats - Fix for TypeScript error by ensuring numeric operations
+      const totalScore = Object.values(latestSubmission).reduce((sum: number, score: any) => Number(sum) + Number(score), 0);
       const maxPossibleScore = Object.keys(latestSubmission).length * 5;
-      const overallProgress = Math.round((totalScore / maxPossibleScore) * 100);
+      const overallProgress = Math.round((Number(totalScore) / Number(maxPossibleScore)) * 100);
       const lowScores = Object.values(latestSubmission).filter((score: any) => Number(score) <= 2).length;
 
       setStats({
@@ -65,7 +71,6 @@ const Dashboard = () => {
         current.score > max.score ? current : max
       );
 
-      // Set personalized growth tips
       setGrowthTips({
         dailyPractice: generateDailyPracticeTip(lowestScoreCategory.name, overallProgress),
         skillBuilding: generateSkillBuildingTip(highestScoreCategory.name, lowestScoreCategory.name)
@@ -94,13 +99,41 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto space-y-6 animate-fadeIn">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-white">Student Development Dashboard</h1>
-          <Button 
-            onClick={() => navigate("/survey")}
-            className="bg-gray-700 hover:bg-gray-600"
-          >
-            Take New Assessment
-          </Button>
+          <div className="flex gap-4">
+            <Button 
+              onClick={() => navigate("/survey")}
+              className="bg-gray-700 hover:bg-gray-600"
+            >
+              Take New Assessment
+            </Button>
+          </div>
         </div>
+
+        {/* Profile Card */}
+        <Card className="glass-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="w-5 h-5" />
+              Profile Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 bg-gray-800 rounded-lg">
+                <p className="text-sm text-gray-400">Name</p>
+                <p className="text-lg font-semibold text-white">{userProfile.name}</p>
+              </div>
+              <div className="p-4 bg-gray-800 rounded-lg">
+                <p className="text-sm text-gray-400">Email</p>
+                <p className="text-lg font-semibold text-white">{userProfile.email}</p>
+              </div>
+              <div className="p-4 bg-gray-800 rounded-lg">
+                <p className="text-sm text-gray-400">Joined Date</p>
+                <p className="text-lg font-semibold text-white">{userProfile.joinedDate}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card className="glass-card">
           <CardHeader>
