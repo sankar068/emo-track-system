@@ -75,6 +75,14 @@ const Survey = () => {
   };
 
   const handleSubmit = () => {
+    // Store answers in localStorage as an array of submissions
+    const previousSubmissions = JSON.parse(localStorage.getItem('surveySubmissions') || '[]');
+    const newSubmission = {
+      timestamp: new Date().toISOString(),
+      answers: answers
+    };
+    localStorage.setItem('surveySubmissions', JSON.stringify([...previousSubmissions, newSubmission]));
+    
     console.log("Survey answers:", answers);
     toast.success("Assessment completed successfully!");
     navigate("/dashboard");
