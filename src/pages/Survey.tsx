@@ -62,24 +62,34 @@ const questions = [
 const Survey = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [currentAnswer, setCurrentAnswer] = useState<string>("");
   const navigate = useNavigate();
 
   const handleAnswer = (value: string) => {
-    setAnswers({ ...answers, [questions[currentQuestion].id]: parseInt(value) });
+    setCurrentAnswer(value);
+  };
+
+  const handleNext = () => {
+    if (!currentAnswer) {
+      toast.error("Please select an answer before proceeding");
+      return;
+    }
+
+    setAnswers({ ...answers, [questions[currentQuestion].id]: parseInt(currentAnswer) });
     
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
+      setCurrentAnswer(""); // Reset current answer for next question
     } else {
       handleSubmit();
     }
   };
 
   const handleSubmit = () => {
-    // Store answers in localStorage as an array of submissions
     const previousSubmissions = JSON.parse(localStorage.getItem('surveySubmissions') || '[]');
     const newSubmission = {
       timestamp: new Date().toISOString(),
-      answers: answers
+      answers: { ...answers, [questions[currentQuestion].id]: parseInt(currentAnswer) }
     };
     localStorage.setItem('surveySubmissions', JSON.stringify([...previousSubmissions, newSubmission]));
     
@@ -108,6 +118,7 @@ const Survey = () => {
               Category: {questions[currentQuestion].category}
             </div>
             <RadioGroup
+              value={currentAnswer}
               onValueChange={handleAnswer}
               className="space-y-3"
             >
@@ -124,6 +135,12 @@ const Survey = () => {
                 </div>
               ))}
             </RadioGroup>
+            <Button 
+              onClick={handleNext}
+              className="w-full mt-4"
+            >
+              {currentQuestion === questions.length - 1 ? "Submit" : "Next Question"}
+            </Button>
           </CardContent>
         </Card>
       </div>
