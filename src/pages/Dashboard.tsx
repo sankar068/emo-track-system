@@ -36,15 +36,15 @@ const Dashboard = () => {
       // Process data for chart
       const processedData = Object.entries(latestSubmission).map(([id, score]) => ({
         name: questions.find(q => q.id === parseInt(id))?.category || '',
-        score: score
+        score: Number(score)
       }));
       setChartData(processedData);
 
       // Calculate stats
-      const totalScore = Object.values(latestSubmission).reduce((sum: number, score: number) => sum + score, 0);
+      const totalScore = Object.values(latestSubmission).reduce((sum: number, score: any) => sum + Number(score), 0);
       const maxPossibleScore = Object.keys(latestSubmission).length * 5;
       const overallProgress = Math.round((totalScore / maxPossibleScore) * 100);
-      const lowScores = Object.values(latestSubmission).filter((score: number) => score <= 2).length;
+      const lowScores = Object.values(latestSubmission).filter((score: any) => Number(score) <= 2).length;
 
       setStats({
         overallProgress,
