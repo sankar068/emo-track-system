@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+iimport { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -84,24 +84,20 @@ const Dashboard = () => {
   };
 
   return (
-   <div className="p-4 bg-gray-800 rounded-lg">
-  <button
-    onClick={() => {
-      // Functionality to show assessment questions and highlight drawbacks
-      const areasWithDrawbacks = chartData.filter(data => data.score <= 2); // Areas with score <= 2
-      alert(
-        areasWithDrawbacks.length
-          ? `Areas with drawbacks:\n${areasWithDrawbacks.map(area => area.name).join(", ")}`
-          : "No significant drawbacks!"
-      );
-    }}
-    className="w-full p-4 bg-gray-700 hover:bg-gray-600 rounded-lg focus:outline-none focus:ring focus:ring-gray-500 text-left"
-  >
-    <p className="text-sm text-gray-400">Areas for Improvement</p>
-    <p className="text-2xl font-bold text-white">{stats.areasForImprovement}</p>
-  </button>
-</div>
- </div>
+    <div className="min-h-screen bg-background p-6">
+      <div className="max-w-7xl mx-auto space-y-6 animate-fadeIn">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold text-foreground">Student Development Dashboard</h1>
+          <div className="flex gap-4">
+            <ThemeToggle />
+            <Button onClick={() => navigate("/about")} variant="outline">About Us</Button>
+            <Button onClick={() => navigate("/survey")} className="bg-primary hover:bg-primary/90">Take New Assessment</Button>
+            <Button onClick={handleLogout} variant="destructive" className="flex items-center gap-2">
+              <LogOut className="w-4 h-4" /> Logout
+            </Button>
+          </div>
+        </div>
+
         {/* Profile Card */}
         <Card className="glass-card">
           <CardHeader>
@@ -171,4 +167,7 @@ const Dashboard = () => {
                       >
                         {showAreasForImprovement ? "Hide Areas for Improvement" : "Show Areas for Improvement"}
                       </Button>
-                      {showAreas
+
+                      {showAreasForImprovement && (
+                        <div className="mt-4">
+                          <h3 className="text-xl font-semibold text-white">
