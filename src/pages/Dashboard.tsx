@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useEffect, useState } from "react";
-import { User } from "lucide-react";
+import { User, LogOut } from "lucide-react";
 
 // Motivational quotes array
 const motivationalQuotes = [
@@ -35,6 +35,11 @@ const Dashboard = () => {
   const [areasWithDrawbacks, setAreasWithDrawbacks] = useState([]);
   const [showAreasForImprovement, setShowAreasForImprovement] = useState(false);
 
+  const handleLogout = () => {
+    localStorage.removeItem('userInfo');
+    navigate('/login');
+  };
+
   useEffect(() => {
     // Get user info from localStorage
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -44,6 +49,9 @@ const Dashboard = () => {
         email: userInfo.email || '',
         joinedDate: userInfo.joinedDate || new Date().toLocaleDateString()
       });
+    } else {
+      // If no user info, redirect to login
+      navigate('/login');
     }
 
     // Get random quote
@@ -96,7 +104,7 @@ const Dashboard = () => {
         });
       }
     }
-  }, []);
+  }, [navigate]);
 
   // Helper function to generate daily practice tips
   const generateDailyPracticeTip = (weakestArea: string, progress: number) => {
@@ -125,6 +133,14 @@ const Dashboard = () => {
               className="bg-gray-700 hover:bg-gray-600"
             >
               Take New Assessment
+            </Button>
+            <Button 
+              onClick={handleLogout}
+              variant="destructive"
+              className="flex items-center gap-2"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
             </Button>
           </div>
         </div>
