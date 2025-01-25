@@ -1,4 +1,3 @@
-<lov-code>
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -213,4 +212,31 @@ const Dashboard = () => {
 
               <Card className="glass-card">
                 <CardHeader>
-                  <CardTitle
+                  <CardTitle>Statistics</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm text-gray-400">Overall Progress</p>
+                      <p className="text-2xl font-bold">{stats.overallProgress}%</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-400">Assessments Completed</p>
+                      <p className="text-2xl font-bold">{stats.assessmentsCompleted}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-400">Areas for Improvement</p>
+                      <p className="text-2xl font-bold">{stats.areasForImprovement}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </>
+        ) : null}
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
