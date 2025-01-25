@@ -36,18 +36,20 @@ const Dashboard = () => {
   const [showAreasForImprovement, setShowAreasForImprovement] = useState(false);
 
   const handleLogout = () => {
-    localStorage.removeItem('userInfo');
+    localStorage.removeItem('currentUser');
     navigate('/login');
   };
 
   useEffect(() => {
     // Get user info from localStorage
-    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-    if (userInfo) {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    console.log("Current user from localStorage:", currentUser);
+    
+    if (currentUser && currentUser.email) {
       setUserProfile({
-        name: userInfo.name || '',
-        email: userInfo.email || '',
-        joinedDate: userInfo.joinedDate || new Date().toLocaleDateString()
+        name: currentUser.name || '',
+        email: currentUser.email || '',
+        joinedDate: currentUser.joinedDate || new Date().toLocaleDateString()
       });
     } else {
       // If no user info, redirect to login
