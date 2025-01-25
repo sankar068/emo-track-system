@@ -27,13 +27,21 @@ const Dashboard = () => {
     dailyPractice: "",
     skillBuilding: ""
   });
-  const [userProfile] = useState({
-    name: "John Doe",
-    email: "john@example.com",
-    joinedDate: new Date().toLocaleDateString()
+  const [userProfile, setUserProfile] = useState({
+    name: "",
+    email: "",
+    joinedDate: ""
   });
 
   useEffect(() => {
+    // Get current user from localStorage
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    if (!currentUser.email) {
+      navigate('/login');
+      return;
+    }
+    setUserProfile(currentUser);
+
     // Get random quote
     const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
     setQuote(randomQuote);
@@ -76,7 +84,7 @@ const Dashboard = () => {
         skillBuilding: generateSkillBuildingTip(highestScoreCategory.name, lowestScoreCategory.name)
       });
     }
-  }, []);
+  }, [navigate]);
 
   // Helper function to generate daily practice tips
   const generateDailyPracticeTip = (weakestArea: string, progress: number) => {
@@ -96,10 +104,22 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 p-6">
-      <div className="max-w-7xl mx-auto space-y-6 animate-fadeIn">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
+      </div>
+      <div className="max-w-7xl mx-auto space-y-6 animate-fadeIn relative">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-white">Student Development Dashboard</h1>
           <div className="flex gap-4">
+            <Button 
+              onClick={() => {
+                localStorage.removeItem('currentUser');
+                navigate("/login");
+              }}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Logout
+            </Button>
             <Button 
               onClick={() => navigate("/survey")}
               className="bg-gray-700 hover:bg-gray-600"
