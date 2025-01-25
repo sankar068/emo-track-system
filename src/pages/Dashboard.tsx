@@ -176,23 +176,24 @@ const Dashboard = () => {
                   <p className="text-sm text-gray-400">Assessments Completed</p>
                   <p className="text-2xl font-bold text-white">{stats.assessmentsCompleted}</p>
                 </div>
-                <div className="p-4 bg-gray-800 rounded-lg">
-                  <button
-                    onClick={() => {
-                      // Functionality to show assessment questions and highlight drawbacks
-                      const areasWithDrawbacks = chartData.filter(data => data.score <= 2); // Areas with score <= 2
-                      alert(
-                        areasWithDrawbacks.length
-                          ? `Areas with drawbacks:\n${areasWithDrawbacks.map(area => area.name).join(", ")}`
-                          : "No significant drawbacks!"
-                      );
-                    }}
-                    className="w-full p-4 bg-gray-700 hover:bg-gray-600 rounded-lg focus:outline-none focus:ring focus:ring-gray-500 text-left"
-                  >
-                    <p className="text-sm text-gray-400">Areas for Improvement</p>
-                    <p className="text-2xl font-bold text-white">{stats.areasForImprovement}</p>
-                  </button>
-                </div>
+               <div className="p-4 bg-gray-800 rounded-lg">
+  <button
+    onClick={() => {
+      // Functionality to show assessment questions and highlight drawbacks
+      const areasWithDrawbacks = chartData.filter(data => data.score <= 2); // Areas with score <= 2
+      alert(
+        areasWithDrawbacks.length
+          ? `Areas with drawbacks:\n${areasWithDrawbacks.map(area => area.name).join(", ")}`
+          : "No significant drawbacks!"
+      );
+    }}
+    className="w-full p-4 bg-gray-700 hover:bg-gray-600 rounded-lg focus:outline-none focus:ring focus:ring-gray-500 text-left"
+  >
+    <p className="text-sm text-gray-400">Areas for Improvement</p>
+    <p className="text-2xl font-bold text-white">{stats.areasForImprovement}</p>
+  </button>
+</div>
+
               </div>
             </CardContent>
           </Card>
