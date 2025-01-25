@@ -1,4 +1,4 @@
-iimport { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -165,9 +165,5 @@ const Dashboard = () => {
                         className="w-full bg-gray-700 hover:bg-gray-600 text-white"
                         onClick={toggleAreasForImprovement}
                       >
-                        {showAreasForImprovement ? "Hide Areas for Improvement" : "Show Areas for Improvement"}
-                      </Button>
+                        {showAreasForImprovement ? "Hide Areas for Improvement
 
-                      {showAreasForImprovement && (
-                        <div className="mt-4">
-                          <h3 className="text-xl font-semibold text-white">
