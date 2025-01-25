@@ -1,9 +1,11 @@
+<lov-code>
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useEffect, useState } from "react";
 import { User, LogOut } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 // Motivational quotes array
 const motivationalQuotes = [
@@ -125,14 +127,21 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 p-6">
+    <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6 animate-fadeIn">
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-white">Student Development Dashboard</h1>
+          <h1 className="text-3xl font-bold text-foreground">Student Development Dashboard</h1>
           <div className="flex gap-4">
+            <ThemeToggle />
+            <Button 
+              onClick={() => navigate("/about")}
+              variant="outline"
+            >
+              About Us
+            </Button>
             <Button 
               onClick={() => navigate("/survey")}
-              className="bg-gray-700 hover:bg-gray-600"
+              className="bg-primary hover:bg-primary/90"
             >
               Take New Assessment
             </Button>
@@ -204,121 +213,4 @@ const Dashboard = () => {
 
               <Card className="glass-card">
                 <CardHeader>
-                  <CardTitle>Quick Stats</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="p-4 bg-gray-800 rounded-lg">
-                      <p className="text-sm text-gray-400">Overall Progress</p>
-                      <p className="text-2xl font-bold text-white">{stats.overallProgress}%</p>
-                    </div>
-                    <div className="p-4 bg-gray-800 rounded-lg">
-                      <p className="text-sm text-gray-400">Assessments Completed</p>
-                      <p className="text-2xl font-bold text-white">{stats.assessmentsCompleted}</p>
-                    </div>
-                    <div 
-                      className="p-4 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-700 transition-colors"
-                      onClick={() => setShowAreasForImprovement(!showAreasForImprovement)}
-                    >
-                      <p className="text-sm text-gray-400">Areas for Improvement</p>
-                      <p className="text-2xl font-bold text-white">{stats.areasForImprovement}</p>
-                      {showAreasForImprovement && areasWithDrawbacks.length > 0 && (
-                        <div className="mt-4 p-4 bg-gray-900 rounded-lg">
-                          <p className="text-sm font-medium text-gray-300 mb-2">Areas that need attention:</p>
-                          <ul className="list-disc list-inside text-gray-400">
-                            {areasWithDrawbacks.map((area, index) => (
-                              <li key={index}>{area}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card className="glass-card">
-              <CardHeader>
-                <CardTitle>Growth Tips</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 bg-gray-800 rounded-lg">
-                    <h3 className="font-bold mb-2">Daily Practice</h3>
-                    <p className="text-gray-400">{growthTips.dailyPractice}</p>
-                  </div>
-                  <div className="p-4 bg-gray-800 rounded-lg">
-                    <h3 className="font-bold mb-2">Skill Building</h3>
-                    <p className="text-gray-400">{growthTips.skillBuilding}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </>
-        ) : (
-          <Card className="glass-card text-center p-8">
-            <CardContent>
-              <h2 className="text-2xl font-bold text-white mb-4">Welcome to Your Development Journey!</h2>
-              <p className="text-gray-400 mb-6">
-                You haven't taken any assessments yet. Start your journey by taking your first assessment to see your progress and get personalized recommendations.
-              </p>
-              <Button 
-                onClick={() => navigate("/survey")}
-                className="bg-gray-700 hover:bg-gray-600"
-              >
-                Take Your First Assessment
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Questions array for category mapping
-const questions = [
-  {
-    id: 1,
-    category: "Emotional Awareness",
-  },
-  {
-    id: 2,
-    category: "Social Skills",
-  },
-  {
-    id: 3,
-    category: "Self-Regulation",
-  },
-  {
-    id: 4,
-    category: "Empathy",
-  },
-  {
-    id: 5,
-    category: "Motivation",
-  },
-  {
-    id: 6,
-    category: "Stress Management",
-  },
-  {
-    id: 7,
-    category: "Communication",
-  },
-  {
-    id: 8,
-    category: "Adaptability",
-  },
-  {
-    id: 9,
-    category: "Self-Confidence",
-  },
-  {
-    id: 10,
-    category: "Teamwork",
-  },
-];
-
-export default Dashboard;
+                  <CardTitle
