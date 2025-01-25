@@ -27,13 +27,25 @@ const Dashboard = () => {
     dailyPractice: "",
     skillBuilding: ""
   });
-  const [userProfile] = useState({
-    name: "John Doe",
-    email: "john@example.com",
-    joinedDate: new Date().toLocaleDateString()
+  const [userProfile, setUserProfile] = useState({
+    name: "",
+    email: "",
+    joinedDate: ""
   });
+  const [areasWithDrawbacks, setAreasWithDrawbacks] = useState([]);
+  const [showAreasForImprovement, setShowAreasForImprovement] = useState(false);
 
   useEffect(() => {
+    // Get user info from localStorage
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    if (userInfo) {
+      setUserProfile({
+        name: userInfo.name || '',
+        email: userInfo.email || '',
+        joinedDate: userInfo.joinedDate || new Date().toLocaleDateString()
+      });
+    }
+
     // Get random quote
     const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
     setQuote(randomQuote);
@@ -50,11 +62,17 @@ const Dashboard = () => {
       }));
       setChartData(processedData);
 
-      // Calculate stats - Fix for TypeScript error by ensuring numeric operations
+      // Calculate stats
       const totalScore = Object.values(latestSubmission).reduce((sum: number, score: any) => Number(sum) + Number(score), 0);
       const maxPossibleScore = Object.keys(latestSubmission).length * 5;
       const overallProgress = Math.round((Number(totalScore) / Number(maxPossibleScore)) * 100);
       const lowScores = Object.values(latestSubmission).filter((score: any) => Number(score) <= 2).length;
+
+      // Find areas with drawbacks
+      const areasWithLowScores = processedData
+        .filter(data => data.score <= 2)
+        .map(area => area.name);
+      setAreasWithDrawbacks(areasWithLowScores);
 
       setStats({
         overallProgress,
@@ -62,19 +80,21 @@ const Dashboard = () => {
         areasForImprovement: lowScores
       });
 
-      // Generate personalized growth tips based on scores
-      const lowestScoreCategory = processedData.reduce((min, current) => 
-        current.score < min.score ? current : min
-      );
+      // Generate growth tips
+      if (processedData.length > 0) {
+        const lowestScoreCategory = processedData.reduce((min, current) => 
+          current.score < min.score ? current : min
+        );
 
-      const highestScoreCategory = processedData.reduce((max, current) => 
-        current.score > max.score ? current : max
-      );
+        const highestScoreCategory = processedData.reduce((max, current) => 
+          current.score > max.score ? current : max
+        );
 
-      setGrowthTips({
-        dailyPractice: generateDailyPracticeTip(lowestScoreCategory.name, overallProgress),
-        skillBuilding: generateSkillBuildingTip(highestScoreCategory.name, lowestScoreCategory.name)
-      });
+        setGrowthTips({
+          dailyPractice: generateDailyPracticeTip(lowestScoreCategory.name, overallProgress),
+          skillBuilding: generateSkillBuildingTip(highestScoreCategory.name, lowestScoreCategory.name)
+        });
+      }
     }
   }, []);
 
@@ -135,87 +155,105 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle>Motivational Quote of the Day</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-lg italic text-gray-300">{quote}</p>
-          </CardContent>
-        </Card>
+        {chartData.length > 0 ? (
+          <>
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle>Motivational Quote of the Day</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-lg italic text-gray-300">{quote}</p>
+              </CardContent>
+            </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="glass-card col-span-2">
-            <CardHeader>
-              <CardTitle>Development Progress</CardTitle>
-            </CardHeader>
-            <CardContent className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="score" fill="#4B5563" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="glass-card col-span-2">
+                <CardHeader>
+                  <CardTitle>Development Progress</CardTitle>
+                </CardHeader>
+                <CardContent className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="score" fill="#4B5563" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
 
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle>Quick Stats</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="p-4 bg-gray-800 rounded-lg">
-                  <p className="text-sm text-gray-400">Overall Progress</p>
-                  <p className="text-2xl font-bold text-white">{stats.overallProgress}%</p>
-                </div>
-                <div className="p-4 bg-gray-800 rounded-lg">
-                  <p className="text-sm text-gray-400">Assessments Completed</p>
-                  <p className="text-2xl font-bold text-white">{stats.assessmentsCompleted}</p>
-                </div>
-               <div className="p-4 bg-gray-800 rounded-lg">
-  <button
-    onClick={() => {
-      // Functionality to show assessment questions and highlight drawbacks
-      const areasWithDrawbacks = chartData.filter(data => data.score <= 2); // Areas with score <= 2
-      alert(
-        areasWithDrawbacks.length
-          ? `Areas with drawbacks:\n${areasWithDrawbacks.map(area => area.name).join(", ")}`
-          : "No significant drawbacks!"
-      );
-    }}
-    className="w-full p-4 bg-gray-700 hover:bg-gray-600 rounded-lg focus:outline-none focus:ring focus:ring-gray-500 text-left"
-  >
-    <p className="text-sm text-gray-400">Areas for Improvement</p>
-    <p className="text-2xl font-bold text-white">{stats.areasForImprovement}</p>
-  </button>
-</div>
-
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle>Growth Tips</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-gray-800 rounded-lg">
-                <h3 className="font-bold mb-2">Daily Practice</h3>
-                <p className="text-gray-400">{growthTips.dailyPractice}</p>
-              </div>
-              <div className="p-4 bg-gray-800 rounded-lg">
-                <h3 className="font-bold mb-2">Skill Building</h3>
-                <p className="text-gray-400">{growthTips.skillBuilding}</p>
-              </div>
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle>Quick Stats</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="p-4 bg-gray-800 rounded-lg">
+                      <p className="text-sm text-gray-400">Overall Progress</p>
+                      <p className="text-2xl font-bold text-white">{stats.overallProgress}%</p>
+                    </div>
+                    <div className="p-4 bg-gray-800 rounded-lg">
+                      <p className="text-sm text-gray-400">Assessments Completed</p>
+                      <p className="text-2xl font-bold text-white">{stats.assessmentsCompleted}</p>
+                    </div>
+                    <div 
+                      className="p-4 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-700 transition-colors"
+                      onClick={() => setShowAreasForImprovement(!showAreasForImprovement)}
+                    >
+                      <p className="text-sm text-gray-400">Areas for Improvement</p>
+                      <p className="text-2xl font-bold text-white">{stats.areasForImprovement}</p>
+                      {showAreasForImprovement && areasWithDrawbacks.length > 0 && (
+                        <div className="mt-4 p-4 bg-gray-900 rounded-lg">
+                          <p className="text-sm font-medium text-gray-300 mb-2">Areas that need attention:</p>
+                          <ul className="list-disc list-inside text-gray-400">
+                            {areasWithDrawbacks.map((area, index) => (
+                              <li key={index}>{area}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </CardContent>
-        </Card>
+
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle>Growth Tips</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-gray-800 rounded-lg">
+                    <h3 className="font-bold mb-2">Daily Practice</h3>
+                    <p className="text-gray-400">{growthTips.dailyPractice}</p>
+                  </div>
+                  <div className="p-4 bg-gray-800 rounded-lg">
+                    <h3 className="font-bold mb-2">Skill Building</h3>
+                    <p className="text-gray-400">{growthTips.skillBuilding}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        ) : (
+          <Card className="glass-card text-center p-8">
+            <CardContent>
+              <h2 className="text-2xl font-bold text-white mb-4">Welcome to Your Development Journey!</h2>
+              <p className="text-gray-400 mb-6">
+                You haven't taken any assessments yet. Start your journey by taking your first assessment to see your progress and get personalized recommendations.
+              </p>
+              <Button 
+                onClick={() => navigate("/survey")}
+                className="bg-gray-700 hover:bg-gray-600"
+              >
+                Take Your First Assessment
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
