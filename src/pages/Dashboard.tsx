@@ -6,6 +6,60 @@ import { useEffect, useState } from "react";
 import { User, LogOut } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
+// Questions array (shared with Survey component)
+const questions = [
+  {
+    id: 1,
+    question: "How well do you understand and manage your emotions?",
+    category: "Emotional Awareness",
+  },
+  {
+    id: 2,
+    question: "How comfortable are you in social situations?",
+    category: "Social Skills",
+  },
+  {
+    id: 3,
+    question: "How well can you control your impulses and behaviors?",
+    category: "Self-Regulation",
+  },
+  {
+    id: 4,
+    question: "How well do you understand others' feelings?",
+    category: "Empathy",
+  },
+  {
+    id: 5,
+    question: "How motivated are you to achieve your goals?",
+    category: "Motivation",
+  },
+  {
+    id: 6,
+    question: "How well do you handle stress and pressure?",
+    category: "Stress Management",
+  },
+  {
+    id: 7,
+    question: "How effectively do you communicate with others?",
+    category: "Communication",
+  },
+  {
+    id: 8,
+    question: "How well do you adapt to change?",
+    category: "Adaptability",
+  },
+  {
+    id: 9,
+    question: "How confident are you in your abilities?",
+    category: "Self-Confidence",
+  },
+  {
+    id: 10,
+    question: "How well do you work in team settings?",
+    category: "Teamwork",
+  },
+];
+
 // Motivational quotes array
 const motivationalQuotes = [
   "The only way to do great work is to love what you do. - Steve Jobs",
