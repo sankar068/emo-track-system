@@ -42,12 +42,11 @@ const Dashboard = () => {
 
   useEffect(() => {
     //Reset stats first thing when component mounts (on login)
-   /* setStats({ 
+    setStats({ 
       overallProgress: 0, 
       assessmentsCompleted: 0, 
       areasForImprovement: 0 
-    });*/
-   
+    });
 
     setChartData([]);
     setAreasWithDrawbacks([]);
@@ -64,14 +63,15 @@ const Dashboard = () => {
         joinedDate: currentUser.joinedDate || new Date().toLocaleDateString()
       });
 
-      const hasSeenGuide = localStorage.getItem(${currentUser.email}_hasSeenGuide);
+      const hasSeenGuide = localStorage.getItem(`${currentUser.email}_hasSeenGuide`);
       setShowWelcomeGuide(!hasSeenGuide);
     } else {
       navigate('/login');
     }
-      if (!currentUser.email) {
-         localStorage.removeItem('surveySubmissions');
+    if (!currentUser.email) {
+      localStorage.removeItem('surveySubmissions');
     }
+    
     const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
     setQuote(randomQuote);
 
@@ -113,11 +113,11 @@ const Dashboard = () => {
   }, [navigate]);
 
   const generateDailyPracticeTip = (weakestArea, progress) => {
-    return Focus on ${weakestArea} for at least 15 minutes daily. Your current progress is ${progress}%.;
+    return `Focus on ${weakestArea} for at least 15 minutes daily. Your current progress is ${progress}%.`;
   };
 
   const generateSkillBuildingTip = (strongestArea, weakestArea) => {
-    return Leverage your strength in ${strongestArea} to improve in ${weakestArea}. Consider joining a workshop or group activity.;
+    return `Leverage your strength in ${strongestArea} to improve in ${weakestArea}. Consider joining a workshop or group activity.`;
   };
 
   const handleLogout = () => {
@@ -146,7 +146,7 @@ const Dashboard = () => {
   const dismissWelcomeGuide = () => {
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     if (currentUser.email) {
-      localStorage.setItem(${currentUser.email}_hasSeenGuide, 'true');
+      localStorage.setItem(`${currentUser.email}_hasSeenGuide`, 'true');
       setShowWelcomeGuide(false);
       toast.success("Welcome guide dismissed! You can always find help in the About section.");
     }
