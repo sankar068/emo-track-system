@@ -68,9 +68,7 @@ const Dashboard = () => {
     } else {
       navigate('/login');
     }
-    if (!currentUser.email) {
-      localStorage.removeItem('surveySubmissions');
-    }
+    
     
     const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
     setQuote(randomQuote);
