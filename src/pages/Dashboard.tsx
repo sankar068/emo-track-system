@@ -40,7 +40,7 @@ const Dashboard = () => {
   const [growthTips, setGrowthTips] = useState({ dailyPractice: "", skillBuilding: "" });
   const [showWelcomeGuide, setShowWelcomeGuide] = useState(true);
 
-  useEffect(() => {
+  /*useEffect(() => {
     //Reset stats first thing when component mounts (on login)
     setStats({ 
       overallProgress: 0, 
@@ -108,7 +108,89 @@ const Dashboard = () => {
         });
       }
     }
-  }, [navigate]);
+  }, [navigate]);*/
+
+  useEffect(() => {
+  // Function to reset the state for a new user login
+  const resetUserProgress = () => {
+    setStats({ 
+      overallProgress: 0, 
+      assessmentsCompleted: 0, 
+      areasForImprovement: 0 
+    });
+
+    setChartData([]);
+    setAreasWithDrawbacks([]);
+    setGrowthTips({
+      dailyPractice: "",
+      skillBuilding: ""
+    });
+
+    // Optionally clear any other user-specific data in localStorage
+    localStorage.removeItem('surveySubmissions');
+  };
+
+  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+
+  if (currentUser && currentUser.email) {
+    // Check if this is a new login
+    setUserProfile({
+      name: currentUser.name || '',
+      email: currentUser.email || '',
+      joinedDate: currentUser.joinedDate || new Date().toLocaleDateString()
+    });
+
+    const hasSeenGuide = localStorage.getItem(`${currentUser.email}_hasSeenGuide`);
+    setShowWelcomeGuide(!hasSeenGuide);
+
+    // Call reset function for fresh user session
+    resetUserProgress();
+  } else {
+    // Redirect to login if no user is found
+    navigate('/login');
+  }
+  
+  // Load any additional setup (e.g., quotes, surveys) here...
+  const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+  setQuote(randomQuote);
+
+  const submissions = JSON.parse(localStorage.getItem('surveySubmissions') || '[]');
+  if (submissions.length > 0) {
+    const latestSubmission = submissions[submissions.length - 1].answers;
+    
+    const processedData = Object.entries(latestSubmission).map(([id, score]) => ({
+      name: questions.find(q => q.id === parseInt(id))?.category || '',
+      score: Number(score)
+    }));
+    setChartData(processedData);
+
+    const totalScore = Object.values(latestSubmission).reduce((sum, score) => Number(sum) + Number(score), 0);
+    const maxPossibleScore = Object.keys(latestSubmission).length * 5;
+    const overallProgress = Math.round((Number(totalScore) / Number(maxPossibleScore)) * 100);
+    const lowScores = Object.values(latestSubmission).filter(score => Number(score) <= 2).length;
+
+    const areasWithLowScores = processedData.filter(data => data.score <= 2).map(area => area.name);
+    setAreasWithDrawbacks(areasWithLowScores);
+
+    setStats({ overallProgress, assessmentsCompleted: submissions.length, areasForImprovement: lowScores });
+
+    if (processedData.length > 0) {
+      const lowestScoreCategory = processedData.reduce((min, current) => 
+        current.score < min.score ? current : min
+      );
+
+      const highestScoreCategory = processedData.reduce((max, current) => 
+        current.score > max.score ? current : max
+      );
+
+      setGrowthTips({
+        dailyPractice: generateDailyPracticeTip(lowestScoreCategory.name, overallProgress),
+        skillBuilding: generateSkillBuildingTip(highestScoreCategory.name, lowestScoreCategory.name)
+      });
+    }
+  }
+}, [navigate]);
+
 
   const generateDailyPracticeTip = (weakestArea, progress) => {
     return `Focus on ${weakestArea} for at least 15 minutes daily. Your current progress is ${progress}%.`;
