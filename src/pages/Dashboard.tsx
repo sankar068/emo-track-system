@@ -41,12 +41,14 @@ const Dashboard = () => {
   const [showWelcomeGuide, setShowWelcomeGuide] = useState(true);
 
   useEffect(() => {
-    // Reset stats first thing when component mounts (on login)
-    setStats({ 
+    //Reset stats first thing when component mounts (on login)
+   /* setStats({ 
       overallProgress: 0, 
       assessmentsCompleted: 0, 
       areasForImprovement: 0 
-    });
+    });*/
+   
+
     setChartData([]);
     setAreasWithDrawbacks([]);
     setGrowthTips({
@@ -67,7 +69,9 @@ const Dashboard = () => {
     } else {
       navigate('/login');
     }
-
+      if (!currentUser.email) {
+         localStorage.removeItem('surveySubmissions');
+    }
     const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
     setQuote(randomQuote);
 
