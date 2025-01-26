@@ -125,6 +125,8 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('currentUser');
+    // Clear user-specific data in localStorage
+    localStorage.removeItem('surveySubmissions');
     navigate('/login');
   };
 
