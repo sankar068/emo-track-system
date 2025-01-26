@@ -40,7 +40,7 @@ const Dashboard = () => {
   const [growthTips, setGrowthTips] = useState({ dailyPractice: "", skillBuilding: "" });
   const [showWelcomeGuide, setShowWelcomeGuide] = useState(true);
 
-  /*useEffect(() => {
+  useEffect(() => {
     //Reset stats first thing when component mounts (on login)
     setStats({ 
       overallProgress: 0, 
@@ -55,6 +55,29 @@ const Dashboard = () => {
       skillBuilding: ""
     });
 
+     // Optionally clear any other user-specific data in localStorage
+    localStorage.removeItem('surveySubmissions');
+  };
+
+  const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+
+  if (currentUser && currentUser.email) {
+    // Check if this is a new login
+    setUserProfile({
+      name: currentUser.name || '',
+      email: currentUser.email || '',
+      joinedDate: currentUser.joinedDate || new Date().toLocaleDateString()
+    });
+
+    const hasSeenGuide = localStorage.getItem(`${currentUser.email}_hasSeenGuide`);
+    setShowWelcomeGuide(!hasSeenGuide);
+
+    // Call reset function for fresh user session
+    resetUserProgress();
+    } else {
+    // Redirect to login if no user is found
+    //navigate('/login');
+  
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     if (currentUser && currentUser.email) {
       setUserProfile({
@@ -67,7 +90,7 @@ const Dashboard = () => {
       setShowWelcomeGuide(!hasSeenGuide);
     } else {
       navigate('/login');
-    }
+    }}
     
     
     const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
@@ -108,9 +131,9 @@ const Dashboard = () => {
         });
       }
     }
-  }, [navigate]);*/
+  }, [navigate]);
 
-  useEffect(() => {
+ /* useEffect(() => {
   // Function to reset the state for a new user login
   const resetUserProgress = () => {
     setStats({ 
@@ -189,7 +212,7 @@ const Dashboard = () => {
       });
     }
   }
-}, [navigate]);
+}, [navigate]);*/
 
 
   const generateDailyPracticeTip = (weakestArea, progress) => {
