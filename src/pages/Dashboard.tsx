@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
 import { useEffect, useState } from "react";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, HelpCircle } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { toast } from "sonner";
 
 // Questions array (shared with Survey component)
 const questions = [
@@ -37,6 +38,7 @@ const Dashboard = () => {
   const [areasWithDrawbacks, setAreasWithDrawbacks] = useState([]);
   const [showAreasForImprovement, setShowAreasForImprovement] = useState(false);
   const [growthTips, setGrowthTips] = useState({ dailyPractice: "", skillBuilding: "" });
+  const [showWelcomeGuide, setShowWelcomeGuide] = useState(true);
 
   useEffect(() => {
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
@@ -46,6 +48,10 @@ const Dashboard = () => {
         email: currentUser.email || '',
         joinedDate: currentUser.joinedDate || new Date().toLocaleDateString()
       });
+
+      // Check if user has seen the welcome guide
+      const hasSeenGuide = localStorage.getItem(`${currentUser.email}_hasSeenGuide`);
+      setShowWelcomeGuide(!hasSeenGuide);
     } else {
       navigate('/login');
     }
@@ -122,6 +128,41 @@ const Dashboard = () => {
     return null;
   };
 
+  const dismissWelcomeGuide = () => {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    if (currentUser.email) {
+      localStorage.setItem(`${currentUser.email}_hasSeenGuide`, 'true');
+      setShowWelcomeGuide(false);
+      toast.success("Welcome guide dismissed! You can always find help in the About section.");
+    }
+  };
+
+  const WelcomeGuide = () => (
+    <Card className="glass-card mb-6 border-2 border-primary">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <HelpCircle className="w-5 h-5" /> Welcome to Student Development Dashboard
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <h3 className="font-semibold">Getting Started:</h3>
+          <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+            <li>Take your first assessment to start tracking your progress</li>
+            <li>View your development across different skills in the chart</li>
+            <li>Get personalized growth tips based on your performance</li>
+            <li>Track your improvements over time</li>
+          </ul>
+        </div>
+        <div className="flex justify-end">
+          <Button onClick={dismissWelcomeGuide} variant="outline">
+            Got it, thanks!
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6 animate-fadeIn">
@@ -136,6 +177,8 @@ const Dashboard = () => {
             </Button>
           </div>
         </div>
+
+        {showWelcomeGuide && <WelcomeGuide />}
 
         {/* Profile Card */}
         <Card className="glass-card">
@@ -268,15 +311,19 @@ const Dashboard = () => {
         ) : (
           <Card className="glass-card">
             <CardContent className="p-6 text-center">
-              <p className="text-lg text-muted-foreground">
-                Take your first assessment to see your development progress and get personalized tips!
-              </p>
-              <Button 
-                onClick={() => navigate("/survey")}
-                className="mt-4 bg-primary hover:bg-primary/90"
-              >
-                Start Assessment
-              </Button>
+              <div className="space-y-4">
+                <HelpCircle className="w-12 h-12 mx-auto text-primary" />
+                <h2 className="text-xl font-semibold">Welcome to Your Development Journey!</h2>
+                <p className="text-muted-foreground">
+                  Take your first assessment to start tracking your progress and get personalized recommendations.
+                </p>
+                <Button 
+                  onClick={() => navigate("/survey")}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  Start Your First Assessment
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
