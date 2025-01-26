@@ -227,9 +227,9 @@ const Dashboard = () => {
 
             {/* Conditional Rendering */}
 {
-  {hasCompletedAssessment ? /*(
+  {hasCompletedAssessment ? (
     <>
-      { Development Progress }
+      {/* Development Progress }
       <Card className="glass-card">
         <CardHeader>
           <CardTitle>Development Progress</CardTitle>
@@ -239,7 +239,8 @@ const Dashboard = () => {
         </CardContent>
       </Card>
     </>
-  )*/ : (
+  )*/ //: (
+      
     <Card className="glass-card">
       <CardContent className="p-6 text-center">
         <div className="space-y-4">
