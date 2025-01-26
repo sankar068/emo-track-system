@@ -70,6 +70,9 @@ const About = () => {
                 support@emotracker.com
               </a>
             </p>
+            <p className="text-muted-foreground mt-4">
+              Created with ❤️ by <span className="font-semibold text-primary">Team Sparkle..!</span>
+            </p>
           </CardContent>
         </Card>
       </div>

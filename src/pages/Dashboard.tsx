@@ -94,6 +94,19 @@ const Dashboard = () => {
           skillBuilding: generateSkillBuildingTip(highestScoreCategory.name, lowestScoreCategory.name)
         });
       }
+    } else {
+      // Reset stats for new users with no submissions
+      setStats({ 
+        overallProgress: 0, 
+        assessmentsCompleted: 0, 
+        areasForImprovement: 0 
+      });
+      setChartData([]);
+      setAreasWithDrawbacks([]);
+      setGrowthTips({
+        dailyPractice: "",
+        skillBuilding: ""
+      });
     }
   }, [navigate]);
 
