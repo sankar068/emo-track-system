@@ -55,8 +55,8 @@ const Dashboard = () => {
       skillBuilding: ""
     });
 
-    // Clear user-specific data in localStorage
-    localStorage.removeItem('surveySubmissions');
+    /*// Clear user-specific data in localStorage
+    localStorage.removeItem('surveySubmissions');*/
 
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
 
