@@ -41,7 +41,7 @@ const Dashboard = () => {
   const [showWelcomeGuide, setShowWelcomeGuide] = useState(true);
 
   useEffect(() => {
-    // Reset stats first thing when component mounts (on login)
+    //Reset stats first thing when component mounts (on login)
     setStats({ 
       overallProgress: 0, 
       assessmentsCompleted: 0, 
@@ -55,11 +55,7 @@ const Dashboard = () => {
       skillBuilding: ""
     });
 
-    // Clear user-specific data in localStorage
-    localStorage.removeItem('surveySubmissions');
-
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-
     if (currentUser && currentUser.email) {
       setUserProfile({
         name: currentUser.name || '',
@@ -67,11 +63,12 @@ const Dashboard = () => {
         joinedDate: currentUser.joinedDate || new Date().toLocaleDateString()
       });
 
-      const hasSeenGuide = localStorage.getItem(`${currentUser.email}_hasSeenGuide`);
+      const hasSeenGuide = localStorage.getItem(${currentUser.email}_hasSeenGuide);
       setShowWelcomeGuide(!hasSeenGuide);
     } else {
       navigate('/login');
     }
+    
     
     const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
     setQuote(randomQuote);
@@ -114,11 +111,11 @@ const Dashboard = () => {
   }, [navigate]);
 
   const generateDailyPracticeTip = (weakestArea, progress) => {
-    return `Focus on ${weakestArea} for at least 15 minutes daily. Your current progress is ${progress}%.`;
+    return Focus on ${weakestArea} for at least 15 minutes daily. Your current progress is ${progress}%.;
   };
 
   const generateSkillBuildingTip = (strongestArea, weakestArea) => {
-    return `Leverage your strength in ${strongestArea} to improve in ${weakestArea}. Consider joining a workshop or group activity.`;
+    return Leverage your strength in ${strongestArea} to improve in ${weakestArea}. Consider joining a workshop or group activity.;
   };
 
   const handleLogout = () => {
@@ -147,7 +144,7 @@ const Dashboard = () => {
   const dismissWelcomeGuide = () => {
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     if (currentUser.email) {
-      localStorage.setItem(`${currentUser.email}_hasSeenGuide`, 'true');
+      localStorage.setItem(${currentUser.email}_hasSeenGuide, 'true');
       setShowWelcomeGuide(false);
       toast.success("Welcome guide dismissed! You can always find help in the About section.");
     }
