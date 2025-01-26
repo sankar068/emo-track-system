@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
 import { useEffect, useState } from "react";
 import { User, LogOut } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -36,6 +36,7 @@ const Dashboard = () => {
   const [userProfile, setUserProfile] = useState({ name: "", email: "", joinedDate: "" });
   const [areasWithDrawbacks, setAreasWithDrawbacks] = useState([]);
   const [showAreasForImprovement, setShowAreasForImprovement] = useState(false);
+  const [growthTips, setGrowthTips] = useState({ dailyPractice: "", skillBuilding: "" });
 
   useEffect(() => {
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
@@ -71,8 +72,32 @@ const Dashboard = () => {
       setAreasWithDrawbacks(areasWithLowScores);
 
       setStats({ overallProgress, assessmentsCompleted: submissions.length, areasForImprovement: lowScores });
+
+      // Generate growth tips
+      if (processedData.length > 0) {
+        const lowestScoreCategory = processedData.reduce((min, current) => 
+          current.score < min.score ? current : min
+        );
+
+        const highestScoreCategory = processedData.reduce((max, current) => 
+          current.score > max.score ? current : max
+        );
+
+        setGrowthTips({
+          dailyPractice: generateDailyPracticeTip(lowestScoreCategory.name, overallProgress),
+          skillBuilding: generateSkillBuildingTip(highestScoreCategory.name, lowestScoreCategory.name)
+        });
+      }
     }
   }, [navigate]);
+
+  const generateDailyPracticeTip = (weakestArea, progress) => {
+    return `Focus on ${weakestArea} for at least 15 minutes daily. Your current progress is ${progress}%.`;
+  };
+
+  const generateSkillBuildingTip = (strongestArea, weakestArea) => {
+    return `Leverage your strength in ${strongestArea} to improve in ${weakestArea}. Consider joining a workshop or group activity.`;
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('currentUser');
@@ -133,7 +158,9 @@ const Dashboard = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card className="glass-card col-span-2">
-                <CardHeader><CardTitle>Development Progress</CardTitle></CardHeader>
+                <CardHeader>
+                  <CardTitle>Development Progress</CardTitle>
+                </CardHeader>
                 <CardContent className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData}>
@@ -141,14 +168,18 @@ const Dashboard = () => {
                       <XAxis dataKey="name" />
                       <YAxis />
                       <Tooltip />
-                      <Bar dataKey="score" fill="#4B5563" />
+                      <Bar dataKey="score" fill="#4B5563">
+                        <LabelList dataKey="score" position="top" />
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
 
               <Card className="glass-card">
-                <CardHeader><CardTitle>Statistics</CardTitle></CardHeader>
+                <CardHeader>
+                  <CardTitle>Statistics</CardTitle>
+                </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div>
@@ -165,5 +196,61 @@ const Dashboard = () => {
                         className="w-full bg-gray-700 hover:bg-gray-600 text-white"
                         onClick={toggleAreasForImprovement}
                       >
-                        {showAreasForImprovement ? "Hide Areas for Improvement
+                        {showAreasForImprovement ? "Hide Areas for Improvement" : "Show Areas for Improvement"}
+                      </Button>
+                      {showAreasForImprovement && (
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-400">Areas for Improvement:</p>
+                          <ul className="list-disc list-inside">
+                            {areasWithDrawbacks.map(area => (
+                              <li key={area} className="text-gray-300">{area}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
+            {/* Growth Tips Section */}
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle>Personalized Growth Tips</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Daily Practice</h3>
+                    <p className="text-muted-foreground">{growthTips.dailyPractice}</p>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Skill Development</h3>
+                    <p className="text-muted-foreground">{growthTips.skillBuilding}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        ) : (
+          <Card className="glass-card">
+            <CardContent className="p-6 text-center">
+              <p className="text-lg text-muted-foreground">
+                Take your first assessment to see your development progress and get personalized tips!
+              </p>
+              <Button 
+                onClick={() => navigate("/survey")}
+                className="mt-4 bg-primary hover:bg-primary/90"
+              >
+                Start Assessment
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
