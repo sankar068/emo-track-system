@@ -41,6 +41,19 @@ const Dashboard = () => {
   const [showWelcomeGuide, setShowWelcomeGuide] = useState(true);
 
   useEffect(() => {
+    // Reset stats first thing when component mounts (on login)
+    setStats({ 
+      overallProgress: 0, 
+      assessmentsCompleted: 0, 
+      areasForImprovement: 0 
+    });
+    setChartData([]);
+    setAreasWithDrawbacks([]);
+    setGrowthTips({
+      dailyPractice: "",
+      skillBuilding: ""
+    });
+
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     if (currentUser && currentUser.email) {
       setUserProfile({
@@ -49,7 +62,6 @@ const Dashboard = () => {
         joinedDate: currentUser.joinedDate || new Date().toLocaleDateString()
       });
 
-      // Check if user has seen the welcome guide
       const hasSeenGuide = localStorage.getItem(`${currentUser.email}_hasSeenGuide`);
       setShowWelcomeGuide(!hasSeenGuide);
     } else {
@@ -79,7 +91,6 @@ const Dashboard = () => {
 
       setStats({ overallProgress, assessmentsCompleted: submissions.length, areasForImprovement: lowScores });
 
-      // Generate growth tips
       if (processedData.length > 0) {
         const lowestScoreCategory = processedData.reduce((min, current) => 
           current.score < min.score ? current : min
@@ -94,19 +105,6 @@ const Dashboard = () => {
           skillBuilding: generateSkillBuildingTip(highestScoreCategory.name, lowestScoreCategory.name)
         });
       }
-    } else {
-      // Reset stats for new users with no submissions
-      setStats({ 
-        overallProgress: 0, 
-        assessmentsCompleted: 0, 
-        areasForImprovement: 0 
-      });
-      setChartData([]);
-      setAreasWithDrawbacks([]);
-      setGrowthTips({
-        dailyPractice: "",
-        skillBuilding: ""
-      });
     }
   }, [navigate]);
 
