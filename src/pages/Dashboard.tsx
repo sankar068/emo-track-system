@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { User, LogOut, HelpCircle } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { toast } from "sonner";
+import EmotionDetector from "@/components/EmotionDetector";
 
 // Questions array (shared with Survey component)
 const questions = [
@@ -185,6 +186,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background p-6">
+      <EmotionDetector />
       <div className="max-w-7xl mx-auto space-y-6 animate-fadeIn">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-foreground">Student Development Dashboard</h1>
@@ -226,10 +228,9 @@ const Dashboard = () => {
         </Card>
 
             {/* Conditional Rendering */}
-{
-  {hasCompletedAssessment ? (
+{hasCompletedAssessment ? (
     <>
-      {/* Development Progress }
+      {/* Development Progress */}
       <Card className="glass-card">
         <CardHeader>
           <CardTitle>Development Progress</CardTitle>
@@ -239,7 +240,7 @@ const Dashboard = () => {
         </CardContent>
       </Card>
     </>
-  )*/ //: (
+  ) : (
       
     <Card className="glass-card">
       <CardContent className="p-6 text-center">
@@ -256,7 +257,7 @@ const Dashboard = () => {
       </CardContent>
     </Card>
   )}
-}
+
 
         
         {/* Development Progress & Motivational Quote */}

@@ -1,0 +1,7 @@
+
+[
+  {
+    "weights": [{"name": "conv0/filters", "shape": [3, 3, 3, 16], "dtype": "float32", "quantization": {"dtype": "uint8", "scale": 0.0006085069429874420, "min": -0.0573596727408196}}],
+    "paths": ["tiny_face_detector_model-shard1"]
+  }
+]

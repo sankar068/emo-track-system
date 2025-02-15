@@ -1,0 +1,7 @@
+
+[
+  {
+    "weights": [{"name": "dense0/conv0/filters", "shape": [3, 3, 3, 32], "dtype": "float32"}],
+    "paths": ["face_expression_model-shard1"]
+  }
+]
