@@ -152,7 +152,7 @@ const EmotionDetector = () => {
   };
 
   return (
-    <div className="fixed top-20 right-4 z-50">
+    <div className="fixed top-0 left-1/2 transform -translate-x-1/2 z-50 mt-4">
       <Card className="w-[300px] bg-background/95 backdrop-blur-sm border-primary">
         <CardContent className="p-4 space-y-4">
           <div className="relative">
