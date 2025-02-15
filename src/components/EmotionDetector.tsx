@@ -58,9 +58,14 @@ const EmotionDetector = () => {
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
     const detectFace = async () => {
       if (!isRecording) return;
+
+      // Draw video frame to canvas
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       const detections = await faceapi
         .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
@@ -69,6 +74,18 @@ const EmotionDetector = () => {
       if (detections) {
         const dominantEmotion = Object.entries(detections.expressions)
           .reduce((a, b) => (a[1] > b[1] ? a : b))[0];
+        
+        // Draw emotion text on canvas
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+        ctx.fillStyle = '#fff';
+        ctx.font = '20px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(
+          `${dominantEmotion.charAt(0).toUpperCase() + dominantEmotion.slice(1)}`,
+          canvas.width / 2,
+          canvas.height - 15
+        );
         
         setEmotions(dominantEmotion);
       }
@@ -96,16 +113,9 @@ const EmotionDetector = () => {
             />
             <canvas
               ref={canvasRef}
-              className="absolute top-0 left-0 w-full h-full"
+              className="absolute top-0 left-0 w-full h-full rounded-lg"
             />
           </div>
-          {emotions && (
-            <div className="text-center">
-              <p className="text-primary font-semibold">
-                Current Emotion: {emotions.charAt(0).toUpperCase() + emotions.slice(1)}
-              </p>
-            </div>
-          )}
           <div className="flex justify-center">
             {!isRecording ? (
               <Button
