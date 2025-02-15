@@ -3,14 +3,23 @@ import { useEffect, useRef, useState } from 'react';
 import * as faceapi from 'face-api.js';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Camera, StopCircle } from 'lucide-react';
+import { Camera, StopCircle, Music2, PauseCircle, PlayCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 const EmotionDetector = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [emotions, setEmotions] = useState<string>('');
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTrack, setCurrentTrack] = useState(0);
+
+  const relaxingSounds = [
+    { name: "Rain Sounds", url: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_1b0809c738.mp3" },
+    { name: "Ocean Waves", url: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8b4d7c254.mp3" },
+    { name: "Forest Birds", url: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_bf3641cfbb.mp3" },
+  ];
 
   useEffect(() => {
     const loadModels = async () => {
@@ -75,14 +84,22 @@ const EmotionDetector = () => {
         const dominantEmotion = Object.entries(detections.expressions)
           .reduce((a, b) => (a[1] > b[1] ? a : b))[0];
         
-        // Draw emotion text on canvas
+        // Draw emotion text on canvas with enhanced styling
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+        ctx.fillRect(0, canvas.height - 60, canvas.width, 60);
         ctx.fillStyle = '#fff';
-        ctx.font = '20px Arial';
+        ctx.font = 'bold 24px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(
           `${dominantEmotion.charAt(0).toUpperCase() + dominantEmotion.slice(1)}`,
+          canvas.width / 2,
+          canvas.height - 35
+        );
+        
+        // Add a suggestion based on emotion
+        ctx.font = '14px Arial';
+        ctx.fillText(
+          getSuggestion(dominantEmotion),
           canvas.width / 2,
           canvas.height - 15
         );
@@ -96,6 +113,42 @@ const EmotionDetector = () => {
     };
 
     video.addEventListener('play', detectFace);
+  };
+
+  const getSuggestion = (emotion: string) => {
+    switch (emotion.toLowerCase()) {
+      case 'angry':
+        return 'Try deep breathing exercises';
+      case 'sad':
+        return 'Listen to uplifting music';
+      case 'fearful':
+        return 'Practice mindfulness';
+      case 'stressed':
+        return 'Take a short break';
+      default:
+        return 'Maintain your positive state';
+    }
+  };
+
+  const toggleSound = () => {
+    if (!audioRef.current) return;
+
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.src = relaxingSounds[currentTrack].url;
+      audioRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const nextTrack = () => {
+    const next = (currentTrack + 1) % relaxingSounds.length;
+    setCurrentTrack(next);
+    if (isPlaying && audioRef.current) {
+      audioRef.current.src = relaxingSounds[next].url;
+      audioRef.current.play();
+    }
   };
 
   return (
@@ -116,6 +169,38 @@ const EmotionDetector = () => {
               className="absolute top-0 left-0 w-full h-full rounded-lg"
             />
           </div>
+          
+          {/* Relaxing Sounds Player */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleSound}
+                className="w-32"
+              >
+                {isPlaying ? (
+                  <><PauseCircle className="mr-2 h-4 w-4" /> Pause</>
+                ) : (
+                  <><PlayCircle className="mr-2 h-4 w-4" /> Play</>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={nextTrack}
+                className="w-32"
+              >
+                <Music2 className="mr-2 h-4 w-4" />
+                Next Track
+              </Button>
+            </div>
+            <p className="text-sm text-center text-muted-foreground">
+              {relaxingSounds[currentTrack].name}
+            </p>
+            <audio ref={audioRef} onEnded={nextTrack} />
+          </div>
+
           <div className="flex justify-center">
             {!isRecording ? (
               <Button
