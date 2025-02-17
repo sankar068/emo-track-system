@@ -132,12 +132,15 @@ const EmotionDetector = () => {
 
   const toggleSound = () => {
     if (!audioRef.current) return;
-
+    
     if (isPlaying) {
       audioRef.current.pause();
     } else {
       audioRef.current.src = relaxingSounds[currentTrack].url;
-      audioRef.current.play();
+      audioRef.current.play().catch(error => {
+        console.error("Audio playback error:", error);
+        toast.error("Error playing audio");
+      });
     }
     setIsPlaying(!isPlaying);
   };
@@ -147,81 +150,79 @@ const EmotionDetector = () => {
     setCurrentTrack(next);
     if (isPlaying && audioRef.current) {
       audioRef.current.src = relaxingSounds[next].url;
-      audioRef.current.play();
+      audioRef.current.play().catch(error => {
+        console.error("Audio playback error:", error);
+        toast.error("Error playing audio");
+      });
     }
   };
 
   return (
-    <div className="fixed top-0 left-1/2 transform -translate-x-1/2 z-50 mt-4">
-      <Card className="w-[300px] bg-background/95 backdrop-blur-sm border-primary">
-        <CardContent className="p-4 space-y-4">
-          <div className="relative">
+    <div className="fixed top-0 left-0 w-full bg-background/95 backdrop-blur-sm border-b border-primary z-50 px-4 py-2">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          {!isRecording ? (
+            <Button
+              onClick={startVideo}
+              className="bg-primary hover:bg-primary/90"
+            >
+              <Camera className="mr-2 h-4 w-4" />
+              Start Emotion Detection
+            </Button>
+          ) : (
+            <Button
+              onClick={stopVideo}
+              variant="destructive"
+            >
+              <StopCircle className="mr-2 h-4 w-4" />
+              Stop Detection
+            </Button>
+          )}
+        </div>
+
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            onClick={toggleSound}
+          >
+            {isPlaying ? (
+              <><PauseCircle className="mr-2 h-4 w-4" /> Pause Music</>
+            ) : (
+              <><PlayCircle className="mr-2 h-4 w-4" /> Play Music</>
+            )}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={nextTrack}
+          >
+            <Music2 className="mr-2 h-4 w-4" />
+            Next Track
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            {relaxingSounds[currentTrack].name}
+          </span>
+        </div>
+
+        <audio ref={audioRef} onEnded={nextTrack} />
+      </div>
+
+      {isRecording && (
+        <div className="fixed top-16 left-1/2 transform -translate-x-1/2 mt-4 w-[300px]">
+          <div className="relative rounded-lg overflow-hidden">
             <video
               ref={videoRef}
               autoPlay
               muted
               playsInline
               className="w-full rounded-lg"
-              style={{ display: isRecording ? 'block' : 'none' }}
             />
             <canvas
               ref={canvasRef}
-              className="absolute top-0 left-0 w-full h-full rounded-lg"
+              className="absolute top-0 left-0 w-full h-full"
             />
           </div>
-          
-          {/* Relaxing Sounds Player */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleSound}
-                className="w-32"
-              >
-                {isPlaying ? (
-                  <><PauseCircle className="mr-2 h-4 w-4" /> Pause</>
-                ) : (
-                  <><PlayCircle className="mr-2 h-4 w-4" /> Play</>
-                )}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={nextTrack}
-                className="w-32"
-              >
-                <Music2 className="mr-2 h-4 w-4" />
-                Next Track
-              </Button>
-            </div>
-            <p className="text-sm text-center text-muted-foreground">
-              {relaxingSounds[currentTrack].name}
-            </p>
-            <audio ref={audioRef} onEnded={nextTrack} />
-          </div>
-
-          <div className="flex justify-center">
-            {!isRecording ? (
-              <Button
-                onClick={startVideo}
-                className="bg-primary hover:bg-primary/90"
-              >
-                <Camera className="mr-2 h-4 w-4" />
-                Start Emotion Detection
-              </Button>
-            ) : (
-              <Button
-                onClick={stopVideo}
-                variant="destructive"
-              >
-                <StopCircle className="mr-2 h-4 w-4" />
-                Stop Detection
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      )}
     </div>
   );
 };
