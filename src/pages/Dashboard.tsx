@@ -7,8 +7,8 @@ import { User, LogOut, HelpCircle } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { toast } from "sonner";
 import EmotionDetector from "@/components/EmotionDetector";
+import BackgroundSettings from '@/components/BackgroundSettings';
 
-// Questions array (shared with Survey component)
 const questions = [
   { id: 1, question: "How well do you understand and manage your emotions?", category: "Emotional Awareness" },
   { id: 2, question: "How comfortable are you in social situations?", category: "Social Skills" },
@@ -43,7 +43,6 @@ const Dashboard = () => {
   const [hasCompletedAssessment, setHasCompletedAssessment] = useState(false);
 
   useEffect(() => {
-    // Reset stats first thing when component mounts (on login)
     setStats({ 
       overallProgress: 0, 
       assessmentsCompleted: 0, 
@@ -56,9 +55,6 @@ const Dashboard = () => {
       dailyPractice: "",
       skillBuilding: ""
     });
-
-    /*// Clear user-specific data in localStorage
-    localStorage.removeItem('surveySubmissions');*/
 
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
 
@@ -126,7 +122,6 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('currentUser');
-    // Clear user-specific data in localStorage
     localStorage.removeItem('surveySubmissions');
     navigate('/login');
   };
@@ -185,7 +180,7 @@ const Dashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-screen bg-background/80 backdrop-blur-sm p-6">
       <EmotionDetector />
       <div className="max-w-7xl mx-auto space-y-6 animate-fadeIn">
         <div className="flex justify-between items-center">
@@ -202,7 +197,6 @@ const Dashboard = () => {
 
         {showWelcomeGuide && <WelcomeGuide />}
 
-        {/* Profile Card */}
         <Card className="glass-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -227,40 +221,34 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-            {/* Conditional Rendering */}
-{hasCompletedAssessment ? (
-    <>
-      {/* Development Progress */}
-      <Card className="glass-card">
-        <CardHeader>
-          <CardTitle>Development Progress</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>Your progress will be displayed here.</p>
-        </CardContent>
-      </Card>
-    </>
-  ) : (
-      
-    <Card className="glass-card">
-      <CardContent className="p-6 text-center">
-        <div className="space-y-4">
-          <HelpCircle className="w-12 h-12 mx-auto text-primary" />
-          <h2 className="text-xl font-semibold">Welcome to Your Development Journey!</h2>
-          <p className="text-muted-foreground">
-            Please take your assessment to unlock your development progress and personalized growth tips.
-          </p>
-          <Button onClick={() => navigate("/survey")} className="bg-primary hover:bg-primary/90">
-            Start Your Assessment
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  )}
+        {hasCompletedAssessment ? (
+          <>
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle>Development Progress</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>Your progress will be displayed here.</p>
+              </CardContent>
+            </Card>
+          </>
+        ) : (
+          <Card className="glass-card">
+            <CardContent className="p-6 text-center">
+              <div className="space-y-4">
+                <HelpCircle className="w-12 h-12 mx-auto text-primary" />
+                <h2 className="text-xl font-semibold">Welcome to Your Development Journey!</h2>
+                <p className="text-muted-foreground">
+                  Please take your assessment to unlock your development progress and personalized growth tips.
+                </p>
+                <Button onClick={() => navigate("/survey")} className="bg-primary hover:bg-primary/90">
+                  Start Your Assessment
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-
-        
-        {/* Development Progress & Motivational Quote */}
         {chartData.length > 0 ? (
           <>
             <Card className="glass-card">
@@ -344,7 +332,6 @@ const Dashboard = () => {
               </Card>
             </div>
 
-            {/* Growth Tips Section */}
             <Card className="glass-card">
               <CardHeader>
                 <CardTitle>Personalized Growth Tips</CardTitle>
@@ -383,6 +370,7 @@ const Dashboard = () => {
           </Card>
         )}
       </div>
+      <BackgroundSettings />
     </div>
   );
 };
