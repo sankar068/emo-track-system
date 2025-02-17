@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from 'react';
 import * as faceapi from 'face-api.js';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Camera, StopCircle, Music2, PauseCircle, PlayCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -16,9 +15,9 @@ const EmotionDetector = () => {
   const [currentTrack, setCurrentTrack] = useState(0);
 
   const relaxingSounds = [
-    { name: "Rain Sounds", url: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_1b0809c738.mp3" },
-    { name: "Ocean Waves", url: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8b4d7c254.mp3" },
-    { name: "Forest Birds", url: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_bf3641cfbb.mp3" },
+    { name: "Rain Sounds", url: "/audio/rain.mp3" },
+    { name: "Ocean Waves", url: "/audio/ocean.mp3" },
+    { name: "Forest Birds", url: "/audio/birds.mp3" },
   ];
 
   useEffect(() => {
@@ -53,7 +52,9 @@ const EmotionDetector = () => {
     const stream = videoRef.current?.srcObject as MediaStream;
     if (stream) {
       stream.getTracks().forEach(track => track.stop());
-      videoRef.current!.srcObject = null;
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
       setIsRecording(false);
       setEmotions('');
     }
@@ -73,38 +74,39 @@ const EmotionDetector = () => {
     const detectFace = async () => {
       if (!isRecording) return;
 
-      // Draw video frame to canvas
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      const detections = await faceapi
-        .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
-        .withFaceExpressions();
+      try {
+        const detections = await faceapi
+          .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+          .withFaceExpressions();
 
-      if (detections) {
-        const dominantEmotion = Object.entries(detections.expressions)
-          .reduce((a, b) => (a[1] > b[1] ? a : b))[0];
-        
-        // Draw emotion text on canvas with enhanced styling
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(0, canvas.height - 60, canvas.width, 60);
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 24px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(
-          `${dominantEmotion.charAt(0).toUpperCase() + dominantEmotion.slice(1)}`,
-          canvas.width / 2,
-          canvas.height - 35
-        );
-        
-        // Add a suggestion based on emotion
-        ctx.font = '14px Arial';
-        ctx.fillText(
-          getSuggestion(dominantEmotion),
-          canvas.width / 2,
-          canvas.height - 15
-        );
-        
-        setEmotions(dominantEmotion);
+        if (detections) {
+          const dominantEmotion = Object.entries(detections.expressions)
+            .reduce((a, b) => (a[1] > b[1] ? a : b))[0];
+          
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+          ctx.fillRect(0, canvas.height - 60, canvas.width, 60);
+          ctx.fillStyle = '#fff';
+          ctx.font = 'bold 24px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText(
+            `${dominantEmotion.charAt(0).toUpperCase() + dominantEmotion.slice(1)}`,
+            canvas.width / 2,
+            canvas.height - 35
+          );
+          
+          ctx.font = '14px Arial';
+          ctx.fillText(
+            getSuggestion(dominantEmotion),
+            canvas.width / 2,
+            canvas.height - 15
+          );
+          
+          setEmotions(dominantEmotion);
+        }
+      } catch (error) {
+        console.error("Face detection error:", error);
       }
 
       if (isRecording) {
@@ -113,6 +115,9 @@ const EmotionDetector = () => {
     };
 
     video.addEventListener('play', detectFace);
+    return () => {
+      video.removeEventListener('play', detectFace);
+    };
   };
 
   const getSuggestion = (emotion: string) => {
@@ -130,30 +135,36 @@ const EmotionDetector = () => {
     }
   };
 
-  const toggleSound = () => {
+  const toggleSound = async () => {
     if (!audioRef.current) return;
     
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.src = relaxingSounds[currentTrack].url;
-      audioRef.current.play().catch(error => {
-        console.error("Audio playback error:", error);
-        toast.error("Error playing audio");
-      });
+    try {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.src = relaxingSounds[currentTrack].url;
+        await audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    } catch (error) {
+      console.error("Audio playback error:", error);
+      toast.error("Error playing audio. Please try again.");
     }
-    setIsPlaying(!isPlaying);
   };
 
-  const nextTrack = () => {
+  const nextTrack = async () => {
     const next = (currentTrack + 1) % relaxingSounds.length;
     setCurrentTrack(next);
+    
     if (isPlaying && audioRef.current) {
-      audioRef.current.src = relaxingSounds[next].url;
-      audioRef.current.play().catch(error => {
+      try {
+        audioRef.current.src = relaxingSounds[next].url;
+        await audioRef.current.play();
+      } catch (error) {
         console.error("Audio playback error:", error);
-        toast.error("Error playing audio");
-      });
+        toast.error("Error playing next track");
+        setIsPlaying(false);
+      }
     }
   };
 
