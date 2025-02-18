@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -66,7 +67,6 @@ const Survey = () => {
   const navigate = useNavigate();
 
   const handleAnswer = (value: string) => {
-    // Allow selecting the same option multiple times
     setCurrentAnswer(value);
     console.log(`Selected answer: ${value} for question ${currentQuestion + 1}`);
   };
