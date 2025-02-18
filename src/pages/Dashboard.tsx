@@ -183,12 +183,14 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background/80 backdrop-blur-sm p-6">
       <EmotionDetector />
       <div className="max-w-7xl mx-auto space-y-6 animate-fadeIn">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <h1 className="text-3xl font-bold text-foreground">Student Development Dashboard</h1>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-2 items-center">
             <ThemeToggle />
             <Button onClick={() => navigate("/about")} variant="outline">About Us</Button>
-            <Button onClick={() => navigate("/survey")} className="bg-primary hover:bg-primary/90">Take New Assessment</Button>
+            <Button onClick={() => navigate("/survey")} className="bg-primary hover:bg-primary/90">
+              Take New Assessment
+            </Button>
             <Button onClick={handleLogout} variant="destructive" className="flex items-center gap-2">
               <LogOut className="w-4 h-4" /> Logout
             </Button>
