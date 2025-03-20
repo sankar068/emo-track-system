@@ -1,13 +1,17 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
 import { useEffect, useState, useRef } from "react";
-import { User, LogOut, HelpCircle, Camera, StopCircle, Music2, PauseCircle, PlayCircle } from "lucide-react";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import EmotionDetector from "@/components/EmotionDetector";
 import BackgroundSettings from '@/components/BackgroundSettings';
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import EmotionControls from "@/components/dashboard/EmotionControls";
+import WelcomeGuide from "@/components/dashboard/WelcomeGuide";
+import UserProfile from "@/components/dashboard/UserProfile";
+import AssessmentPrompt from "@/components/dashboard/AssessmentPrompt";
+import MotivationalQuote from "@/components/dashboard/MotivationalQuote";
+import DevelopmentChart from "@/components/dashboard/DevelopmentChart";
+import StatisticsCard from "@/components/dashboard/StatisticsCard";
+import GrowthTips from "@/components/dashboard/GrowthTips";
 
 const questions = [
   { id: 1, question: "How well do you understand and manage your emotions?", category: "Emotional Awareness" },
@@ -37,7 +41,6 @@ const Dashboard = () => {
   const [quote, setQuote] = useState("");
   const [userProfile, setUserProfile] = useState({ name: "", email: "", joinedDate: "" });
   const [areasWithDrawbacks, setAreasWithDrawbacks] = useState([]);
-  const [showAreasForImprovement, setShowAreasForImprovement] = useState(false);
   const [growthTips, setGrowthTips] = useState({ dailyPractice: "", skillBuilding: "" });
   const [showWelcomeGuide, setShowWelcomeGuide] = useState(true);
   const [hasCompletedAssessment, setHasCompletedAssessment] = useState(false);
@@ -47,12 +50,6 @@ const Dashboard = () => {
   const [currentTrack, setCurrentTrack] = useState(0);
   const [currentTrackName, setCurrentTrackName] = useState("Rain Sounds");
   const emotionDetectorRef = useRef(null);
-
-  const relaxingSounds = [
-    { name: "Rain Sounds", url: "/audio/rain.mp3" },
-    { name: "Ocean Waves", url: "/audio/ocean.mp3" },
-    { name: "Forest Birds", url: "/audio/birds.mp3" },
-  ];
 
   useEffect(() => {
     setStats({ 
@@ -103,8 +100,6 @@ const Dashboard = () => {
       const lowScores = Object.values(latestSubmission).filter(score => Number(score) <= 2).length;
       const areasWithLowScores = processedData.filter(data => data.score <= 2).map(area => area.name);
       setAreasWithDrawbacks(areasWithLowScores);
-      setStats({ overallProgress, assessmentsCompleted: submissions.length, areasForImprovement: 0 });
-
       setStats({ overallProgress, assessmentsCompleted: submissions.length, areasForImprovement: lowScores });
 
       if (processedData.length > 0) {
@@ -136,24 +131,6 @@ const Dashboard = () => {
     localStorage.removeItem('currentUser');
     localStorage.removeItem('surveySubmissions');
     navigate('/login');
-  };
-
-  const toggleAreasForImprovement = () => {
-    setShowAreasForImprovement(!showAreasForImprovement);
-  };
-
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-background/90 border border-border p-2 rounded-lg shadow-lg backdrop-blur-sm">
-          <p className="text-foreground font-medium">{label}</p>
-          <p className="text-foreground">
-            Score: <span className="font-bold">{payload[0].value}</span>
-          </p>
-        </div>
-      );
-    }
-    return null;
   };
 
   const dismissWelcomeGuide = () => {
@@ -198,269 +175,43 @@ const Dashboard = () => {
     }
   };
 
-  const WelcomeGuide = () => (
-    <Card className="glass-card mb-6 border-2 border-primary">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <HelpCircle className="w-5 h-5" /> Welcome to Student Development Dashboard
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <h3 className="font-semibold">Getting Started:</h3>
-          <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-            <li>Take your first assessment to start tracking your progress</li>
-            <li>View your development across different skills in the chart</li>
-            <li>Get personalized growth tips based on your performance</li>
-            <li>Track your improvements over time</li>
-          </ul>
-        </div>
-        <div className="flex justify-end">
-          <Button onClick={dismissWelcomeGuide} variant="outline">
-            Got it, thanks!
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
   return (
     <div className="min-h-screen bg-background/80 backdrop-blur-sm p-6">
       <EmotionDetector ref={emotionDetectorRef} />
       
       <div className="max-w-7xl mx-auto space-y-6 animate-fadeIn">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <h1 className="text-3xl font-bold text-foreground">Student Development Dashboard</h1>
-          
-          <div className="flex flex-wrap gap-2 items-center">
-            <ThemeToggle />
-            <Button onClick={() => navigate("/about")} variant="outline">About Us</Button>
-            <Button onClick={() => navigate("/survey")} className="bg-primary hover:bg-primary/90">
-              Take New Assessment
-            </Button>
-            <Button onClick={handleLogout} variant="destructive" className="flex items-center gap-2">
-              <LogOut className="w-4 h-4" /> Logout
-            </Button>
-          </div>
-        </div>
+        <DashboardHeader handleLogout={handleLogout} />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {!isRecording ? (
-            <Button
-              onClick={startEmotionDetection}
-              className="bg-primary hover:bg-primary/90"
-            >
-              <Camera className="mr-2 h-4 w-4" />
-              Start Emotion Detection
-            </Button>
-          ) : (
-            <Button
-              onClick={stopEmotionDetection}
-              variant="destructive"
-            >
-              <StopCircle className="mr-2 h-4 w-4" />
-              Stop Detection
-            </Button>
-          )}
+        <EmotionControls
+          isRecording={isRecording}
+          isPlaying={isPlaying}
+          currentTrackName={currentTrackName}
+          startEmotionDetection={startEmotionDetection}
+          stopEmotionDetection={stopEmotionDetection}
+          toggleSound={toggleSound}
+          nextTrack={nextTrack}
+        />
 
-          <Button
-            variant="outline"
-            onClick={toggleSound}
-          >
-            {isPlaying ? (
-              <><PauseCircle className="mr-2 h-4 w-4" /> Pause Music</>
-            ) : (
-              <><PlayCircle className="mr-2 h-4 w-4" /> Play Music</>
-            )}
-          </Button>
-          
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={nextTrack}
-            >
-              <Music2 className="mr-2 h-4 w-4" />
-              Next Track
-            </Button>
-            <span className="text-sm text-muted-foreground">
-              {currentTrackName}
-            </span>
-          </div>
-        </div>
+        {showWelcomeGuide && <WelcomeGuide dismissWelcomeGuide={dismissWelcomeGuide} />}
 
-        {showWelcomeGuide && <WelcomeGuide />}
-
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="w-5 h-5" /> Profile Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 bg-gray-800 rounded-lg">
-                <p className="text-sm text-gray-400">Name</p>
-                <p className="text-lg font-semibold text-white">{userProfile.name}</p>
-              </div>
-              <div className="p-4 bg-gray-800 rounded-lg">
-                <p className="text-sm text-gray-400">Email</p>
-                <p className="text-lg font-semibold text-white">{userProfile.email}</p>
-              </div>
-              <div className="p-4 bg-gray-800 rounded-lg">
-                <p className="text-sm text-gray-400">Joined Date</p>
-                <p className="text-lg font-semibold text-white">{userProfile.joinedDate}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <UserProfile userProfile={userProfile} />
 
         {hasCompletedAssessment ? (
           <>
-            <Card className="glass-card">
-              <CardHeader>
-                <CardTitle>Development Progress</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>Your progress will be displayed here.</p>
-              </CardContent>
-            </Card>
-          </>
-        ) : (
-          <Card className="glass-card">
-            <CardContent className="p-6 text-center">
-              <div className="space-y-4">
-                <HelpCircle className="w-12 h-12 mx-auto text-primary" />
-                <h2 className="text-xl font-semibold">Welcome to Your Development Journey!</h2>
-                <p className="text-muted-foreground">
-                  Please take your assessment to unlock your development progress and personalized growth tips.
-                </p>
-                <Button onClick={() => navigate("/survey")} className="bg-primary hover:bg-primary/90">
-                  Start Your Assessment
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {chartData.length > 0 ? (
-          <>
-            <Card className="glass-card">
-              <CardHeader><CardTitle>Motivational Quote of the Day</CardTitle></CardHeader>
-              <CardContent><p className="text-lg italic text-gray-300">{quote}</p></CardContent>
-            </Card>
+            <MotivationalQuote quote={quote} />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="glass-card col-span-2">
-                <CardHeader>
-                  <CardTitle>Development Progress</CardTitle>
-                </CardHeader>
-                <CardContent className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/50" />
-                      <XAxis 
-                        dataKey="name" 
-                        className="text-foreground"
-                        tick={{ fill: 'currentColor' }}
-                      />
-                      <YAxis 
-                        className="text-foreground"
-                        tick={{ fill: 'currentColor' }}
-                      />
-                      <Tooltip 
-                        content={<CustomTooltip />}
-                        cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
-                      />
-                      <Bar 
-                        dataKey="score" 
-                        fill="currentColor"
-                        className="fill-primary"
-                      >
-                        <LabelList 
-                          dataKey="score" 
-                          position="top" 
-                          className="fill-foreground"
-                        />
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              <Card className="glass-card">
-                <CardHeader>
-                  <CardTitle>Statistics</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-sm text-gray-400">Overall Progress</p>
-                      <p className="text-2xl font-bold">{stats.overallProgress}%</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-400">Assessments Completed</p>
-                      <p className="text-2xl font-bold">{stats.assessmentsCompleted}</p>
-                    </div>
-                    <div>
-                      <Button
-                        variant="outline"
-                        className="w-full bg-gray-700 hover:bg-gray-600 text-white"
-                        onClick={toggleAreasForImprovement}
-                      >
-                        {showAreasForImprovement ? "Hide Areas for Improvement" : "Show Areas for Improvement"}
-                      </Button>
-                      {showAreasForImprovement && (
-                        <div className="mt-2">
-                          <p className="text-sm text-gray-400">Areas for Improvement:</p>
-                          <ul className="list-disc list-inside">
-                            {areasWithDrawbacks.map(area => (
-                              <li key={area} className="text-gray-300">{area}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <DevelopmentChart chartData={chartData} />
+              <StatisticsCard 
+                stats={stats} 
+                areasWithDrawbacks={areasWithDrawbacks}
+              />
             </div>
 
-            <Card className="glass-card">
-              <CardHeader>
-                <CardTitle>Personalized Growth Tips</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Daily Practice</h3>
-                    <p className="text-muted-foreground">{growthTips.dailyPractice}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Skill Development</h3>
-                    <p className="text-muted-foreground">{growthTips.skillBuilding}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <GrowthTips growthTips={growthTips} />
           </>
         ) : (
-          <Card className="glass-card">
-            <CardContent className="p-6 text-center">
-              <div className="space-y-4">
-                <HelpCircle className="w-12 h-12 mx-auto text-primary" />
-                <h2 className="text-xl font-semibold">Welcome to Your Development Journey!</h2>
-                <p className="text-muted-foreground">
-                  Take your first assessment to start tracking your progress and get personalized recommendations.
-                </p>
-                <Button 
-                  onClick={() => navigate("/survey")}
-                  className="bg-primary hover:bg-primary/90"
-                >
-                  Start Your First Assessment
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <AssessmentPrompt />
         )}
       </div>
       <BackgroundSettings />
