@@ -1,2 +1,3 @@
 
-<!-- This is a placeholder. In a real project, you would upload an actual MP3 file here. -->
+<!-- This file should contain a valid MP3 audio file with rain sounds. -->
+<!-- Since we can't upload binary files directly through this interface, we'll create a text representation that will be replaced with a real MP3 file when you upload one. -->

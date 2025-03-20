@@ -47,6 +47,13 @@ const EmotionDetector = forwardRef<any, EmotionDetectorProps>((props, ref) => {
       }
     };
     loadModels();
+    
+    // Initialize audio element
+    if (!audioRef.current) {
+      const audio = new Audio();
+      audio.preload = "auto";
+      audioRef.current = audio;
+    }
   }, []);
 
   const startVideo = async () => {
@@ -157,9 +164,27 @@ const EmotionDetector = forwardRef<any, EmotionDetectorProps>((props, ref) => {
         audioRef.current.pause();
         setIsPlaying(false);
       } else {
-        audioRef.current.src = relaxingSounds[currentTrack].url;
-        await audioRef.current.play();
-        setIsPlaying(true);
+        // Set the source before playing
+        const audioSource = relaxingSounds[currentTrack].url;
+        console.log("Playing audio from:", audioSource);
+        
+        audioRef.current.src = audioSource;
+        audioRef.current.oncanplay = async () => {
+          try {
+            await audioRef.current?.play();
+            setIsPlaying(true);
+            toast.success(`Playing: ${relaxingSounds[currentTrack].name}`);
+          } catch (error) {
+            console.error("Audio play error:", error);
+            toast.error(`Failed to play ${relaxingSounds[currentTrack].name}`);
+          }
+        };
+        
+        audioRef.current.onerror = (e) => {
+          console.error("Audio loading error:", e);
+          toast.error(`Failed to load ${relaxingSounds[currentTrack].name}`);
+          setIsPlaying(false);
+        };
       }
     } catch (error) {
       console.error("Audio playback error:", error);
@@ -173,8 +198,30 @@ const EmotionDetector = forwardRef<any, EmotionDetectorProps>((props, ref) => {
     
     if (isPlaying && audioRef.current) {
       try {
-        audioRef.current.src = relaxingSounds[next].url;
-        await audioRef.current.play();
+        // Stop current audio
+        audioRef.current.pause();
+        
+        // Set new source
+        const audioSource = relaxingSounds[next].url;
+        console.log("Switching to audio from:", audioSource);
+        
+        audioRef.current.src = audioSource;
+        audioRef.current.oncanplay = async () => {
+          try {
+            await audioRef.current?.play();
+            toast.success(`Playing: ${relaxingSounds[next].name}`);
+          } catch (error) {
+            console.error("Audio play error:", error);
+            toast.error(`Failed to play ${relaxingSounds[next].name}`);
+            setIsPlaying(false);
+          }
+        };
+        
+        audioRef.current.onerror = (e) => {
+          console.error("Audio loading error:", e);
+          toast.error(`Failed to load ${relaxingSounds[next].name}`);
+          setIsPlaying(false);
+        };
       } catch (error) {
         console.error("Audio playback error:", error);
         toast.error("Error playing next track");
