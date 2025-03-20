@@ -169,54 +169,7 @@ const EmotionDetector = () => {
   };
 
   return (
-    <div className="fixed top-0 left-0 w-full bg-background/95 backdrop-blur-sm border-b border-primary z-50 px-4 py-2">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          {!isRecording ? (
-            <Button
-              onClick={startVideo}
-              className="bg-primary hover:bg-primary/90"
-            >
-              <Camera className="mr-2 h-4 w-4" />
-              Start Emotion Detection
-            </Button>
-          ) : (
-            <Button
-              onClick={stopVideo}
-              variant="destructive"
-            >
-              <StopCircle className="mr-2 h-4 w-4" />
-              Stop Detection
-            </Button>
-          )}
-        </div>
-
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            onClick={toggleSound}
-          >
-            {isPlaying ? (
-              <><PauseCircle className="mr-2 h-4 w-4" /> Pause Music</>
-            ) : (
-              <><PlayCircle className="mr-2 h-4 w-4" /> Play Music</>
-            )}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={nextTrack}
-          >
-            <Music2 className="mr-2 h-4 w-4" />
-            Next Track
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            {relaxingSounds[currentTrack].name}
-          </span>
-        </div>
-
-        <audio ref={audioRef} onEnded={nextTrack} />
-      </div>
-
+    <>
       {isRecording && (
         <div className="fixed top-16 left-1/2 transform -translate-x-1/2 mt-4 w-[300px]">
           <div className="relative rounded-lg overflow-hidden">
@@ -234,7 +187,8 @@ const EmotionDetector = () => {
           </div>
         </div>
       )}
-    </div>
+      <audio ref={audioRef} onEnded={nextTrack} />
+    </>
   );
 };
 

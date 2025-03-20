@@ -56,3 +56,20 @@
   @apply px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all duration-200 disabled:opacity-50;
 }
 
+.emotion-buttons {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-4 mb-6;
+}
+
+.emotion-button {
+  @apply flex items-center justify-center gap-2 p-3 rounded-lg transition-all duration-200 hover:scale-105;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+

@@ -2,8 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
-import { useEffect, useState } from "react";
-import { User, LogOut, HelpCircle } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { User, LogOut, HelpCircle, Camera, StopCircle, Music2, PauseCircle, PlayCircle } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { toast } from "sonner";
 import EmotionDetector from "@/components/EmotionDetector";
@@ -41,6 +41,18 @@ const Dashboard = () => {
   const [growthTips, setGrowthTips] = useState({ dailyPractice: "", skillBuilding: "" });
   const [showWelcomeGuide, setShowWelcomeGuide] = useState(true);
   const [hasCompletedAssessment, setHasCompletedAssessment] = useState(false);
+  
+  const [isRecording, setIsRecording] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTrack, setCurrentTrack] = useState(0);
+  const emotionDetectorRef = useRef(null);
+  const audioRef = useRef(new Audio());
+
+  const relaxingSounds = [
+    { name: "Rain Sounds", url: "/audio/rain.mp3" },
+    { name: "Ocean Waves", url: "/audio/ocean.mp3" },
+    { name: "Forest Birds", url: "/audio/birds.mp3" },
+  ];
 
   useEffect(() => {
     setStats({ 
@@ -153,6 +165,61 @@ const Dashboard = () => {
     }
   };
 
+  const startEmotionDetection = async () => {
+    if (emotionDetectorRef.current && typeof emotionDetectorRef.current.startVideo === 'function') {
+      await emotionDetectorRef.current.startVideo();
+      setIsRecording(true);
+    }
+  };
+
+  const stopEmotionDetection = () => {
+    if (emotionDetectorRef.current && typeof emotionDetectorRef.current.stopVideo === 'function') {
+      emotionDetectorRef.current.stopVideo();
+      setIsRecording(false);
+    }
+  };
+
+  const toggleSound = async () => {
+    try {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.src = relaxingSounds[currentTrack].url;
+        await audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    } catch (error) {
+      console.error("Audio playback error:", error);
+      toast.error("Error playing audio. Please try again.");
+    }
+  };
+
+  const nextTrack = async () => {
+    const next = (currentTrack + 1) % relaxingSounds.length;
+    setCurrentTrack(next);
+    
+    if (isPlaying) {
+      try {
+        audioRef.current.src = relaxingSounds[next].url;
+        await audioRef.current.play();
+      } catch (error) {
+        console.error("Audio playback error:", error);
+        toast.error("Error playing next track");
+        setIsPlaying(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handleEnded = () => nextTrack();
+    audioRef.current.addEventListener('ended', handleEnded);
+    
+    return () => {
+      audioRef.current.removeEventListener('ended', handleEnded);
+      audioRef.current.pause();
+    };
+  }, [currentTrack]);
+
   const WelcomeGuide = () => (
     <Card className="glass-card mb-6 border-2 border-primary">
       <CardHeader>
@@ -181,10 +248,12 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background/80 backdrop-blur-sm p-6">
-      <EmotionDetector />
+      <EmotionDetector ref={emotionDetectorRef} />
+      
       <div className="max-w-7xl mx-auto space-y-6 animate-fadeIn">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <h1 className="text-3xl font-bold text-foreground">Student Development Dashboard</h1>
+          
           <div className="flex flex-wrap gap-2 items-center">
             <ThemeToggle />
             <Button onClick={() => navigate("/about")} variant="outline">About Us</Button>
@@ -194,6 +263,50 @@ const Dashboard = () => {
             <Button onClick={handleLogout} variant="destructive" className="flex items-center gap-2">
               <LogOut className="w-4 h-4" /> Logout
             </Button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {!isRecording ? (
+            <Button
+              onClick={startEmotionDetection}
+              className="bg-primary hover:bg-primary/90"
+            >
+              <Camera className="mr-2 h-4 w-4" />
+              Start Emotion Detection
+            </Button>
+          ) : (
+            <Button
+              onClick={stopEmotionDetection}
+              variant="destructive"
+            >
+              <StopCircle className="mr-2 h-4 w-4" />
+              Stop Detection
+            </Button>
+          )}
+
+          <Button
+            variant="outline"
+            onClick={toggleSound}
+          >
+            {isPlaying ? (
+              <><PauseCircle className="mr-2 h-4 w-4" /> Pause Music</>
+            ) : (
+              <><PlayCircle className="mr-2 h-4 w-4" /> Play Music</>
+            )}
+          </Button>
+          
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={nextTrack}
+            >
+              <Music2 className="mr-2 h-4 w-4" />
+              Next Track
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              {relaxingSounds[currentTrack].name}
+            </span>
           </div>
         </div>
 
