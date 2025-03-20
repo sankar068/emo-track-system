@@ -1,11 +1,13 @@
 
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useRef, useState, useImperativeHandle } from 'react';
 import * as faceapi from 'face-api.js';
 import { Button } from '@/components/ui/button';
 import { Camera, StopCircle, Music2, PauseCircle, PlayCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
-const EmotionDetector = () => {
+interface EmotionDetectorProps {}
+
+const EmotionDetector = forwardRef<any, EmotionDetectorProps>((props, ref) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -19,6 +21,18 @@ const EmotionDetector = () => {
     { name: "Ocean Waves", url: "/audio/ocean.mp3" },
     { name: "Forest Birds", url: "/audio/birds.mp3" },
   ];
+
+  // Expose methods to parent component
+  useImperativeHandle(ref, () => ({
+    startVideo,
+    stopVideo,
+    toggleSound,
+    nextTrack,
+    isRecording,
+    isPlaying,
+    currentTrack,
+    getCurrentTrackName: () => relaxingSounds[currentTrack].name
+  }));
 
   useEffect(() => {
     const loadModels = async () => {
@@ -141,11 +155,12 @@ const EmotionDetector = () => {
     try {
       if (isPlaying) {
         audioRef.current.pause();
+        setIsPlaying(false);
       } else {
         audioRef.current.src = relaxingSounds[currentTrack].url;
         await audioRef.current.play();
+        setIsPlaying(true);
       }
-      setIsPlaying(!isPlaying);
     } catch (error) {
       console.error("Audio playback error:", error);
       toast.error("Error playing audio. Please try again.");
@@ -190,6 +205,8 @@ const EmotionDetector = () => {
       <audio ref={audioRef} onEnded={nextTrack} />
     </>
   );
-};
+});
+
+EmotionDetector.displayName = 'EmotionDetector';
 
 export default EmotionDetector;

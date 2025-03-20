@@ -64,6 +64,10 @@
   @apply flex items-center justify-center gap-2 p-3 rounded-lg transition-all duration-200 hover:scale-105;
 }
 
+.audio-controls {
+  @apply flex items-center gap-2 p-2 bg-background/80 rounded-md backdrop-blur-sm;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -72,4 +76,3 @@
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-out;
 }
-

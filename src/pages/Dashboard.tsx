@@ -45,8 +45,8 @@ const Dashboard = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState(0);
+  const [currentTrackName, setCurrentTrackName] = useState("Rain Sounds");
   const emotionDetectorRef = useRef(null);
-  const audioRef = useRef(new Audio());
 
   const relaxingSounds = [
     { name: "Rain Sounds", url: "/audio/rain.mp3" },
@@ -180,45 +180,23 @@ const Dashboard = () => {
   };
 
   const toggleSound = async () => {
-    try {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.src = relaxingSounds[currentTrack].url;
-        await audioRef.current.play();
-      }
+    if (emotionDetectorRef.current && typeof emotionDetectorRef.current.toggleSound === 'function') {
+      await emotionDetectorRef.current.toggleSound();
       setIsPlaying(!isPlaying);
-    } catch (error) {
-      console.error("Audio playback error:", error);
-      toast.error("Error playing audio. Please try again.");
     }
   };
 
   const nextTrack = async () => {
-    const next = (currentTrack + 1) % relaxingSounds.length;
-    setCurrentTrack(next);
-    
-    if (isPlaying) {
-      try {
-        audioRef.current.src = relaxingSounds[next].url;
-        await audioRef.current.play();
-      } catch (error) {
-        console.error("Audio playback error:", error);
-        toast.error("Error playing next track");
-        setIsPlaying(false);
+    if (emotionDetectorRef.current && typeof emotionDetectorRef.current.nextTrack === 'function') {
+      await emotionDetectorRef.current.nextTrack();
+      const next = (currentTrack + 1) % 3;
+      setCurrentTrack(next);
+      
+      if (emotionDetectorRef.current.getCurrentTrackName) {
+        setCurrentTrackName(emotionDetectorRef.current.getCurrentTrackName());
       }
     }
   };
-
-  useEffect(() => {
-    const handleEnded = () => nextTrack();
-    audioRef.current.addEventListener('ended', handleEnded);
-    
-    return () => {
-      audioRef.current.removeEventListener('ended', handleEnded);
-      audioRef.current.pause();
-    };
-  }, [currentTrack]);
 
   const WelcomeGuide = () => (
     <Card className="glass-card mb-6 border-2 border-primary">
@@ -305,7 +283,7 @@ const Dashboard = () => {
               Next Track
             </Button>
             <span className="text-sm text-muted-foreground">
-              {relaxingSounds[currentTrack].name}
+              {currentTrackName}
             </span>
           </div>
         </div>
