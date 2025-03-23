@@ -12,6 +12,7 @@ import MotivationalQuote from "@/components/dashboard/MotivationalQuote";
 import DevelopmentChart from "@/components/dashboard/DevelopmentChart";
 import StatisticsCard from "@/components/dashboard/StatisticsCard";
 import GrowthTips from "@/components/dashboard/GrowthTips";
+import ImprovementSuggestions from "@/components/dashboard/ImprovementSuggestions";
 
 const questions = [
   { id: 1, question: "How well do you understand and manage your emotions?", category: "Emotional Awareness" },
@@ -209,6 +210,13 @@ const Dashboard = () => {
             </div>
 
             <GrowthTips growthTips={growthTips} />
+            
+            <div className="grid grid-cols-1 gap-6 mt-6">
+              <ImprovementSuggestions 
+                areasWithDrawbacks={areasWithDrawbacks} 
+                chartData={chartData}
+              />
+            </div>
           </>
         ) : (
           <AssessmentPrompt />
