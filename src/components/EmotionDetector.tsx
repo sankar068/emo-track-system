@@ -14,6 +14,7 @@ interface EmotionDetectorRef {
   isPlaying: boolean;
   currentTrack: number;
   getCurrentTrackName: () => string;
+  currentEmotion: string;
 }
 
 const EmotionDetector = forwardRef<EmotionDetectorRef, EmotionDetectorProps>((props, ref) => {
@@ -53,6 +54,9 @@ const EmotionDetector = forwardRef<EmotionDetectorRef, EmotionDetectorProps>((pr
     },
     getCurrentTrackName: () => {
       return audioPlayerRef.current?.getCurrentTrackName() || "Unknown";
+    },
+    get currentEmotion() {
+      return faceDetectorRef.current?.emotions || '';
     }
   }));
 

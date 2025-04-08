@@ -35,6 +35,12 @@ const motivationalQuotes = [
   "The future belongs to those who believe in the beauty of their dreams. - Eleanor Roosevelt"
 ];
 
+declare global {
+  interface Window {
+    _emotionCheckInterval?: NodeJS.Timeout;
+  }
+}
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [chartData, setChartData] = useState([]);
@@ -50,6 +56,7 @@ const Dashboard = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState(0);
   const [currentTrackName, setCurrentTrackName] = useState("Rain Sounds");
+  const [currentEmotion, setCurrentEmotion] = useState("");
   const emotionDetectorRef = useRef(null);
 
   useEffect(() => {
@@ -147,6 +154,17 @@ const Dashboard = () => {
     if (emotionDetectorRef.current && typeof emotionDetectorRef.current.startVideo === 'function') {
       await emotionDetectorRef.current.startVideo();
       setIsRecording(true);
+      
+      const emotionCheckInterval = setInterval(() => {
+        if (emotionDetectorRef.current && typeof emotionDetectorRef.current.currentEmotion === 'string') {
+          const emotion = emotionDetectorRef.current.currentEmotion;
+          if (emotion && emotion !== currentEmotion) {
+            setCurrentEmotion(emotion);
+          }
+        }
+      }, 500);
+      
+      window._emotionCheckInterval = emotionCheckInterval;
     }
   };
 
@@ -154,6 +172,11 @@ const Dashboard = () => {
     if (emotionDetectorRef.current && typeof emotionDetectorRef.current.stopVideo === 'function') {
       emotionDetectorRef.current.stopVideo();
       setIsRecording(false);
+      setCurrentEmotion("");
+      
+      if (window._emotionCheckInterval) {
+        clearInterval(window._emotionCheckInterval);
+      }
     }
   };
 
@@ -187,6 +210,7 @@ const Dashboard = () => {
           isRecording={isRecording}
           isPlaying={isPlaying}
           currentTrackName={currentTrackName}
+          currentEmotion={currentEmotion}
           startEmotionDetection={startEmotionDetection}
           stopEmotionDetection={stopEmotionDetection}
           toggleSound={toggleSound}
