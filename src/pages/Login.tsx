@@ -29,7 +29,21 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 to-gray-800 p-4">
+   return (
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 to-gray-800 p-4 relative">
+    
+    {/* 🔥 Brand Logo and Title */}
+    <div className="absolute top-10 flex flex-col items-center z-10">
+      <img
+        src="/logo.png" // Replace with actual path to your logo
+        alt="Emo-Tr@cker Logo"
+        className="w-16 h-16 mb-2 animate-pulse"
+      />
+      <h1 className="text-3xl font-bold text-white drop-shadow-md tracking-wider">
+        Emo-Tr@cker
+      </h1>
+    </div>
+
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
       </div>
