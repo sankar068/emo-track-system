@@ -1,64 +1,45 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
-import { useEffect } from "react";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { signUp, user } = useAuth();
 
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (user) {
-      navigate("/dashboard");
-    }
-  }, [user, navigate]);
-
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password || !name) {
-      toast.error("Please fill in all fields");
-      return;
-    }
+    const newUser = {
+      name,
+      email,
+      password,
+      joinedDate: new Date().toLocaleDateString()
+    };
 
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters long");
-      return;
-    }
-
-    setIsLoading(true);
+    // Get existing users or initialize empty array
+    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
     
-    try {
-      const { error } = await signUp(email, password, name);
-      
-      if (error) {
-        if (error.message.includes("User already registered")) {
-          toast.error("Email already registered. Please try logging in instead.");
-        } else if (error.message.includes("Password should be")) {
-          toast.error("Password should be at least 6 characters");
-        } else {
-          toast.error(error.message || "Signup failed");
-        }
-      } else {
-        toast.success("Account created successfully! Please check your email to confirm your account.");
-        navigate("/login");
-      }
-    } catch (error) {
-      toast.error("An unexpected error occurred");
-      console.error("Signup error:", error);
-    } finally {
-      setIsLoading(false);
+    // Check if email already exists
+    if (existingUsers.some((user: any) => user.email === email)) {
+      toast.error("Email already registered!");
+      return;
     }
+
+    // Add new user
+    const updatedUsers = [...existingUsers, newUser];
+    localStorage.setItem('users', JSON.stringify(updatedUsers));
+    
+    // Set as current user
+    localStorage.setItem('currentUser', JSON.stringify(newUser));
+
+    console.log("Signup successful:", newUser);
+    toast.success("Account created successfully!");
+    navigate("/dashboard");
   };
 
   return (
@@ -83,7 +64,6 @@ const Signup = () => {
                 onChange={(e) => setName(e.target.value)}
                 className="input-style"
                 required
-                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -94,28 +74,22 @@ const Signup = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="input-style"
                 required
-                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
               <Input
                 type="password"
-                placeholder="Password (minimum 6 characters)"
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="input-style"
                 required
-                disabled={isLoading}
               />
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button 
-              type="submit" 
-              className="w-full button-style"
-              disabled={isLoading}
-            >
-              {isLoading ? "Creating account..." : "Create account"}
+            <Button type="submit" className="w-full button-style">
+              Create account
             </Button>
             <div className="text-sm text-center text-gray-500">
               Already have an account?{" "}
